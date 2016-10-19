@@ -1,0 +1,84 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+
+    def globalConfiguration = rootProject.extensions.getByName("ext")
+
+
+    compileSdkVersion globalConfiguration.getAt("snifflesCompileSdkVersion")
+    buildToolsVersion globalConfiguration.getAt("snifflesBuildToolsVersion")
+
+    defaultConfig {
+        applicationId globalConfiguration.getAt("snifflesApplicationId")
+
+        minSdkVersion globalConfiguration.getAt("snifflesMinSdkVersion")
+        targetSdkVersion globalConfiguration.getAt("snifflesTargetSdkVersion")
+
+        versionCode globalConfiguration.getAt("snifflesVersionCode")
+        versionName globalConfiguration.getAt("snifflesVersionName")
+
+        testApplicationId globalConfiguration.getAt("snifflesTestApplicationId")
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+
+        release {
+            keyAlias project.keyAlias
+            keyPassword project.keyPassword
+            storeFile file(project.storeFile)
+            storePassword project.storePassword
+        }
+    }
+
+    buildTypes {
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    def snifflesDependencies = rootProject.ext.snifflesDependencies
+    compile snifflesDependencies.appCompat
+    compile snifflesDependencies.appDesign
+    compile snifflesDependencies.recyclerView
+
+    compile snifflesDependencies.butterKnife
+    apt snifflesDependencies.butterKnifeCompiler
+
+    compile snifflesDependencies.slf4j
+    compile snifflesDependencies.logback
+
+    compile snifflesDependencies.dagger
+    apt snifflesDependencies.daggerCompiler
+    compile snifflesDependencies.jsr250
+
+    debugCompile snifflesDependencies.leakcanary
+    releaseCompile snifflesDependencies.leakcanaryNoOp
+
+    compile snifflesDependencies.okhttp
+    compile snifflesDependencies.gson
+    compile snifflesDependencies.okhttpLoggingInterceptor
+
+    compile project(':di')
+
+    compile 'com.android.support:support-v4:24.2.1'
+    testCompile 'junit:junit:4.12'
+}
