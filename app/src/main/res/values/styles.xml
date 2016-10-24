@@ -59,6 +59,10 @@
         <item name="android:textColor">@drawable/base_button_text_color_selector</item>
     </style>
 
+    <style name="CustomButtonStyle.OnOff">
+        <item name="android:background">@drawable/base_button__on_off_selector</item>
+    </style>
+
     <style name="ToolBarStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:background">@color/primary_color_purple</item>
         <item name="android:textColorPrimary">@android:color/white</item>
@@ -101,4 +105,14 @@
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">@dimen/list_item_2_size</item>
     </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">@color/supporting_color_light_purple</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <!-- Used for the background -->
+        <item name="android:background">@android:color/white</item>
+    </style>
+
 </resources>

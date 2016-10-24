@@ -38,6 +38,8 @@ import android.widget.ProgressBar;
 
 import com.imgtec.creator.sniffles.R;
 
+import java.lang.ref.WeakReference;
+
 import javax.inject.Inject;
 
 /**
@@ -46,8 +48,8 @@ import javax.inject.Inject;
 public class ToolbarHelper {
 
   private final Activity activity;
-  private Toolbar toolbar;
-  private ProgressBar progressBar;
+  private WeakReference<Toolbar> toolbar;
+
 
   @Inject public ToolbarHelper(Activity activity) {
     this.activity = activity;
@@ -57,21 +59,19 @@ public class ToolbarHelper {
     if (toolbar == null) {
       throw new IllegalArgumentException("Set toolbar first.");
     }
-    return toolbar;
+    return toolbar.get();
   }
 
   public void setToolbar(Toolbar toolbar) {
-    this.toolbar = toolbar;
+    this.toolbar = new WeakReference<>(toolbar);
   }
 
   public void showProgress() {
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        if (progressBar == null) {
-          progressBar = (ProgressBar) toolbar.findViewById(R.id.progress);
-        }
-        progressBar.setVisibility(View.VISIBLE);
+        toolbar.get().findViewById(R.id.progress).setVisibility(View.VISIBLE);
+
       }
     });
   }
@@ -80,10 +80,7 @@ public class ToolbarHelper {
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        if (progressBar == null) {
-          progressBar = (ProgressBar) toolbar.findViewById(R.id.progress);
-        }
-        progressBar.setVisibility(View.GONE);
+        toolbar.get().findViewById(R.id.progress).setVisibility(View.GONE);
       }
     });
   }

@@ -33,6 +33,7 @@ package com.imgtec.creator.sniffles.presentation;
 
 import com.imgtec.creator.sniffles.app.ApplicationComponent;
 import com.imgtec.creator.sniffles.presentation.fragments.AboutFragment;
+import com.imgtec.creator.sniffles.presentation.fragments.Ci40Fragment;
 import com.imgtec.creator.sniffles.presentation.fragments.ClientsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.OnboardingFragment;
@@ -69,6 +70,7 @@ public interface ActivityComponent {
   void inject(LoginFragment fragment);
   void inject(ClientsFragment fragment);
   void inject(OnboardingFragment fragment);
+  void inject(Ci40Fragment fragment);
   void inject(AboutFragment fragment);
 
   DrawerHelper getDrawerHelper();

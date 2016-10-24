@@ -60,12 +60,20 @@ public class App extends Application implements HasComponent<ApplicationComponen
     component.inject(this);
 
     refWatcher = installLeakCanary();
+    if (refWatcher == null) {
+      // This process is dedicated to LeakCanary for heap analysis.
+      // You should not init your app in this process.
+      return;
+    }
 
     logger.debug("Application created: {}", this);
   }
 
   private RefWatcher installLeakCanary() {
     if (BuildConfig.DEBUG) {
+      if (LeakCanary.isInAnalyzerProcess(this)) {
+        return null;
+      }
       return LeakCanary.install(this);
     }
     else {

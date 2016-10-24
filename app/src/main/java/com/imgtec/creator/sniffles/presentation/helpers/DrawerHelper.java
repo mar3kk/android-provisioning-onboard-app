@@ -40,6 +40,8 @@ import android.widget.TextView;
 import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.presentation.MainActivity;
 
+import java.lang.ref.WeakReference;
+
 import javax.inject.Inject;
 
 /**
@@ -47,9 +49,9 @@ import javax.inject.Inject;
  */
 public class DrawerHelper {
   private final MainActivity activity;
-  private DrawerLayout drawer;
-  private ActionBarDrawerToggle drawerToggle;
-  private NavigationView navigationView;
+  private WeakReference<DrawerLayout> drawer;
+  private WeakReference<ActionBarDrawerToggle> drawerToggle;
+  private WeakReference<NavigationView> navigationView;
 
   @Inject
   public DrawerHelper(MainActivity activity) {
@@ -57,26 +59,26 @@ public class DrawerHelper {
   }
 
   public DrawerLayout getDrawer() {
-    if (drawer == null) {
+    if (drawer == null || drawer.get() == null) {
       throw new IllegalArgumentException("Set Drawer first.");
     }
-    return drawer;
+    return drawer.get();
   }
 
   public void setDrawer(DrawerLayout drawer) {
-    this.drawer = drawer;
+    this.drawer = new WeakReference<>(drawer);
   }
 
   public void setNavigationView(NavigationView navigationView) {
-    this.navigationView = navigationView;
+    this.navigationView = new WeakReference<>(navigationView);
   }
 
   public ActionBarDrawerToggle getDrawerToggle() {
-    return this.drawerToggle;
+    return this.drawerToggle.get();
   }
 
   public void setDrawerToggle(ActionBarDrawerToggle drawerToggle) {
-    this.drawerToggle = drawerToggle;
+    this.drawerToggle = new WeakReference<>(drawerToggle);
   }
 
   public void unlockDrawer() {
@@ -106,12 +108,12 @@ public class DrawerHelper {
       activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          if (navigationView != null) {
-            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.user)).setText(user);
+          if (navigationView.get() != null) {
+            ((TextView) navigationView.get().getHeaderView(0).findViewById(R.id.user)).setText(user);
           }
 
-          if (navigationView != null) {
-            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.email)).setText(email);
+          if (navigationView.get() != null) {
+            ((TextView)( navigationView.get()).getHeaderView(0).findViewById(R.id.email)).setText(email);
           }
         }
       });
@@ -123,7 +125,7 @@ public class DrawerHelper {
       activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          Menu menu = ((NavigationView) drawer.findViewById(R.id.nav_view)).getMenu();
+          Menu menu = ((NavigationView) drawer.get().findViewById(R.id.nav_view)).getMenu();
           if (menu != null) {
             for (int i = 0; i < menu.size(); menu.getItem(i).setChecked(false), i++) ;
           }
@@ -137,7 +139,7 @@ public class DrawerHelper {
       activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          Menu menu = ((NavigationView) drawer.findViewById(R.id.nav_view)).getMenu();
+          Menu menu = ((NavigationView) drawer.get().findViewById(R.id.nav_view)).getMenu();
           if (menu != null) {
             menu.getItem(index).setChecked(true);
           }

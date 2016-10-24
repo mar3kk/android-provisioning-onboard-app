@@ -173,12 +173,16 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
 
   @Override
   public void onBackPressed() {
-    final FragmentManager fm = getSupportFragmentManager();
-    if (fm.getBackStackEntryCount() > 0) {
-      fm.popBackStack();
-    }
-    else {
-      super.onBackPressed();
+    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    if (drawer.isDrawerOpen(GravityCompat.START)) {
+      drawer.closeDrawer(GravityCompat.START);
+    } else {
+      final FragmentManager fm = getSupportFragmentManager();
+      if (fm.getBackStackEntryCount() > 0) {
+        fm.popBackStack();
+      } else {
+        super.onBackPressed();
+      }
     }
     currentFragment = null;
   }

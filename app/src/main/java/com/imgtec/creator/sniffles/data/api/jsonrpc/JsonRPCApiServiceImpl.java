@@ -34,6 +34,7 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 import android.content.Context;
 
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.di.PerApp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,13 +68,52 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
   }
 
   @Override
+  public void authorize(final String ipAddress, final String userName, final String password,
+                        final AuthorizationCallback callback) {
+    executorService.execute(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          if (userName == null || password == null) {
+            throw new IllegalStateException("Username and password cannot be null.");
+          }
+          final String token = authorize(ipAddress, userName, password);
+          if (token == null) {
+            notifyError(new AuthorizationFailedException(), callback);
+            return;
+          }
+
+          notifySuccess(userName, password, token, callback);
+        }
+        catch (Exception e) {
+          notifyError(e, callback);
+        }
+      }
+    });
+  }
+
+  private void notifySuccess(String userName, String password, final String token, final AuthorizationCallback callback) {
+    if (callback != null) {
+      callback.onSuccess(userName, password, token);
+    }
+  }
+
+
+  private void notifyError(final Exception e, final AuthorizationCallback callback) {
+    if (callback != null) {
+      callback.onFailure( e);
+    }
+  }
+
+  @Override
   public void execute(final String ipAddress, final String key, final String secret,
                       final ApiCallback<JsonRPCApiService, String> callback) {
 
     executorService.execute(new Runnable() {
       @Override
       public void run() {
-        final String token = authorize(ipAddress);
+
+        final String token = authorize(ipAddress,"","");
         logger.debug("JSON-RPC: token = {}", token);
 
         try {
@@ -105,12 +145,13 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
     });
   }
 
-  private String authorize(String ipAddr) throws IllegalStateException {
+  private String authorize(String ipAddr, final String userName, final String password)
+      throws IllegalStateException {
 
     try {
       RpcData auth = new RpcData();
       auth.setMethod("login");
-      auth.setParams(Arrays.asList("root", "password"));
+      auth.setParams(Arrays.asList(userName, password));
       JsonRPCAuthRequest authRequest =
           new JsonRPCAuthRequest(ipAddr, auth);
       logger.debug("JSON-RPC: Performing auth request: {}", authRequest.getUrl());
@@ -119,7 +160,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       return m.get("result");
     }
     catch (IOException e) {
-
+      logger.warn("");
     }
 
     throw new IllegalStateException("JSON-RPC: Authorization failed!");

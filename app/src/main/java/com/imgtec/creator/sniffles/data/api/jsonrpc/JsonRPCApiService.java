@@ -38,6 +38,13 @@ import com.imgtec.creator.sniffles.data.api.ApiCallback;
  */
 public interface JsonRPCApiService {
 
+  interface AuthorizationCallback {
+    void onSuccess(final String userName, final String password, final String token);
+    void onFailure(final Throwable t);
+  }
+
+  void authorize(String ipAddress, final String userName, final String password,
+                 AuthorizationCallback callback);
   void execute(String ipAddress, final String key, final String secret,
                ApiCallback<JsonRPCApiService, String> callback);
 }

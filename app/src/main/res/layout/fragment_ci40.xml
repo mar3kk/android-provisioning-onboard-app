@@ -1,0 +1,27 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".presentation.fragments.Ci40Fragment"
+    android:background="@android:color/white">
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/provisioning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/start_provisioning"
+        android:layout_margin="12dp"
+        style="@style/CustomButtonStyle.OnOff"
+        />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/unprovision"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/unprovision"
+        android:layout_margin="12dp"
+        />
+
+</LinearLayout>

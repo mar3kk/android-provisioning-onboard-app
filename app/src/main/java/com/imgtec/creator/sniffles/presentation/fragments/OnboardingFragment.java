@@ -32,10 +32,15 @@
 package com.imgtec.creator.sniffles.presentation.fragments;
 
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,6 +48,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.data.NsdService;
@@ -52,8 +60,8 @@ import com.imgtec.creator.sniffles.data.ServiceInfo;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
-import com.imgtec.creator.sniffles.presentation.MainActivity;
 import com.imgtec.creator.sniffles.presentation.adapters.DiscoveredServicesAdapter;
+import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.creator.sniffles.presentation.views.HorizontalItemDecoration;
 import com.imgtec.creator.sniffles.presentation.views.RecyclerItemClickSupport;
@@ -84,6 +92,11 @@ public class OnboardingFragment extends BaseFragment {
 
   private DiscoveredServicesAdapter adapter;
 
+  private AlertDialog rpcLoginDialog;
+  private ProgressDialog progressDialog;
+
+  private String userName;
+  private String password;
 
   public OnboardingFragment() {
     // Required empty public constructor
@@ -114,8 +127,9 @@ public class OnboardingFragment extends BaseFragment {
     }
     actionBar.show();
     actionBar.setTitle(R.string.onboarding);
+    actionBar.setDisplayHomeAsUpEnabled(false);
+    actionBar.setHomeButtonEnabled(true);
   }
-
 
   @Override
   protected void setComponent() {
@@ -147,11 +161,8 @@ public class OnboardingFragment extends BaseFragment {
           @Override
           public void onItemClicked(RecyclerView recyclerView, int position, View view) {
 
-            final String key = ((MainActivity) getActivity()).getKey();
-            final String secret = ((MainActivity) getActivity()).getSecret();
             logger.debug("Starting provisioning for board with id: {}", adapter.getItem(position));
-            jsonRpc.execute(adapter.getItem(position).getIpAddress(), key, secret,
-                new JsonRpcCallback(OnboardingFragment.this));
+            showRpcLoginDialog(adapter.getItem(position).getIpAddress());
           }
         });
   }
@@ -167,8 +178,15 @@ public class OnboardingFragment extends BaseFragment {
   @Override
   public void onPause() {
     super.onPause();
+
+    toolbarHelper.hideProgress();
+
     if (nsdService != null) {
       nsdService.removeDiscoveryServiceListener(discoveryListener);
+    }
+    if (rpcLoginDialog != null) {
+      rpcLoginDialog.dismiss();
+      rpcLoginDialog = null;
     }
   }
 
@@ -177,6 +195,71 @@ public class OnboardingFragment extends BaseFragment {
     super.onStop();
     if (nsdService != null) {
       nsdService.stopDiscovery();
+    }
+  }
+
+  private void showRpcLoginDialog(final String ipAddress) {
+    LayoutInflater inflater = getLayoutInflater(null);
+    final View dialogView = inflater.inflate(R.layout.rpc_login_dialog, null);
+    final EditText username = (EditText) dialogView.findViewById(R.id.username);
+    final EditText passwd = (EditText) dialogView.findViewById(R.id.password);
+
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogStyle);
+    builder
+        .setTitle(R.string.enter_credentials)
+        .setView(dialogView)
+        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            rpcLoginDialog = null;
+          }
+        })
+        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+
+            userName = username.getText().toString();
+            password = passwd.getText().toString();
+
+            hideSoftKeyboard(passwd);
+
+            dialog.dismiss();
+            rpcLoginDialog = null;
+
+            showProgressDialog();
+            jsonRpc.authorize(ipAddress, userName, password,
+                new JsonRpcAuthCallback(OnboardingFragment.this, mainHandler));
+
+          }
+        });
+
+    rpcLoginDialog = builder.create();
+    rpcLoginDialog.show();
+
+  }
+
+  private void hideSoftKeyboard(View view) {
+
+    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+  }
+
+  private void showProgressDialog() {
+    if (progressDialog != null) {
+      hideProgressDialog();
+    }
+    final String message = getActivity().getResources().getString(R.string.logging_in);
+    progressDialog = ProgressDialog.show(getActivity(),
+        getActivity().getString(R.string.please_wait_with_dots), message, true);
+    progressDialog.setCanceledOnTouchOutside(false);
+  }
+
+  private void hideProgressDialog() {
+    if (progressDialog != null) {
+      progressDialog.dismiss();
+      progressDialog = null;
     }
   }
 
@@ -213,8 +296,18 @@ public class OnboardingFragment extends BaseFragment {
         }
 
         @Override
-        public void onServiceLost(NsdService service, ServiceInfo serviceInfo, int errorCode) {
-
+        public void onServiceLost(final NsdService service, final ServiceInfo serviceInfo,
+                                  final int errorCode) {
+          mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+              int pos = adapter.getPosition(serviceInfo);
+              if (pos > -1) {
+                adapter.remove(pos);
+                adapter.notifyItemRemoved(pos);
+              }
+            }
+          });
         }
       };
 
@@ -242,6 +335,57 @@ public class OnboardingFragment extends BaseFragment {
 
   private void notifyOnboardingFailure(Throwable t) {
 
+  }
+
+  private void showToast(String msg) {
+    Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+  }
+
+  private void loadNextFragment(String username, String password) {
+
+    Ci40Fragment fragment = Ci40Fragment.newInstance(username, password);
+    FragmentHelper.replaceFragment(getActivity().getSupportFragmentManager(),  fragment);
+  }
+
+  private static class JsonRpcAuthCallback implements JsonRPCApiService.AuthorizationCallback {
+
+    private final WeakReference<OnboardingFragment> fragment;
+    private final Handler mainHandler;
+
+    public JsonRpcAuthCallback(OnboardingFragment fragment, Handler mainHandler) {
+      this.fragment = new WeakReference<>(fragment);
+      this.mainHandler = mainHandler;
+    }
+
+    @Override
+    public void onSuccess(final String username, final String password, final String result) {
+      if (result != null) {
+        mainHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            OnboardingFragment f = fragment.get();
+            if (f != null && f.isAdded()) {
+              f.hideProgressDialog();
+              f.loadNextFragment(username, password);
+            }
+          }
+        });
+      }
+    }
+
+    @Override
+    public void onFailure(final Throwable t) {
+      mainHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          OnboardingFragment f = fragment.get();
+          if (f != null && f.isAdded()) {
+            f.hideProgressDialog();
+            f.showToast("Json-RPC login failed! " + t.getMessage());
+          }
+        }
+      });
+    }
   }
 
   private static class JsonRpcCallback implements ApiCallback<JsonRPCApiService,String> {

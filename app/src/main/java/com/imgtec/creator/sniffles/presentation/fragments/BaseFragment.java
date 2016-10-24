@@ -74,7 +74,7 @@ public abstract class BaseFragment extends Fragment {
   }
 
   protected void setupDrawer() {
-    //skip
+    drawerHelper.getDrawerToggle().setDrawerIndicatorEnabled(true);
   }
 
   protected abstract void setComponent();

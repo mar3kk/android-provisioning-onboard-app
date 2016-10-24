@@ -95,6 +95,7 @@ public class AboutFragment extends BaseFragment {
     }
     actionBar.show();
     actionBar.setTitle(R.string.about);
+    actionBar.setDisplayHomeAsUpEnabled(false);
+    actionBar.setHomeButtonEnabled(true);
   }
-
 }

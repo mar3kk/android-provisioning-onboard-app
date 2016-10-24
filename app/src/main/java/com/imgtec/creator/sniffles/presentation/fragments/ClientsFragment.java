@@ -89,6 +89,8 @@ public class ClientsFragment extends BaseFragment {
     }
     actionBar.show();
     actionBar.setTitle(R.string.clients);
+    actionBar.setDisplayHomeAsUpEnabled(false);
+    actionBar.setHomeButtonEnabled(true);
   }
 
   @Override
@@ -96,4 +98,5 @@ public class ClientsFragment extends BaseFragment {
     super.setupDrawer();
     drawerHelper.setSelector(0);
   }
+
 }
