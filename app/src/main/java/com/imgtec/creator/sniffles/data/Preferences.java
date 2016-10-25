@@ -40,6 +40,11 @@ import javax.inject.Inject;
  */
 public class Preferences {
 
+  //account access keys
+  private static final String AC_KEY = "ac_key";
+  private static final String AC_SECRET = "ac_secret";
+  private static final String DEFAULT_AC_KEY = "";
+  private static final String DEFAULT_AC_SECRET = "";
   //user
   private static final String EMPTY = "";
   private static final String USERNAME = "username";
@@ -103,5 +108,20 @@ public class Preferences {
     final SharedPreferences.Editor editor = sharedPreferences.edit();
     editor.putBoolean(KEEP_ME_LOGGED_IN, checked);
     editor.commit();
+  }
+
+  public void saveAccessKeys(String key, String secret) {
+    final SharedPreferences.Editor editor = sharedPreferences.edit();
+    editor.putString(AC_KEY, key);
+    editor.putString(AC_SECRET, secret);
+    editor.commit();
+  }
+
+  public String getKey() {
+    return sharedPreferences.getString(AC_KEY, DEFAULT_AC_KEY);
+  }
+
+  public String getSecret() {
+    return sharedPreferences.getString(AC_SECRET, DEFAULT_AC_SECRET);
   }
 }

@@ -32,7 +32,6 @@
 package com.imgtec.creator.sniffles.presentation.fragments;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -85,7 +84,6 @@ public class OnboardingFragment extends BaseFragment {
   @Inject Preferences prefs;
   @Inject NsdService nsdService;
   @Inject JsonRPCApiService jsonRpc;
-
   @Inject ToolbarHelper toolbarHelper;
 
   @BindView(R.id.recyclerView) RecyclerView recyclerView;
@@ -311,39 +309,13 @@ public class OnboardingFragment extends BaseFragment {
         }
       };
 
-  private void notifyOnboardingSuccess(final String ipAddress) {
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-
-        int index = -1;
-        for (int i = 0; i < adapter.getItemCount(); ++i) {
-          ServiceInfo si = adapter.getItem(i);
-          if (si.getIpAddress().equals(ipAddress)) {
-            index = i;
-            break;
-          }
-        }
-
-        if (index > -1) {
-          adapter.getItem(index).setProvisioned(true);
-          adapter.notifyItemChanged(index);
-        }
-      }
-    });
-  }
-
-  private void notifyOnboardingFailure(Throwable t) {
-
-  }
-
   private void showToast(String msg) {
     Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
   }
 
-  private void loadNextFragment(String username, String password) {
+  private void loadNextFragment(String ipAddr, String username, String password) {
 
-    Ci40Fragment fragment = Ci40Fragment.newInstance(username, password);
+    Ci40Fragment fragment = Ci40Fragment.newInstance(ipAddr, username, password);
     FragmentHelper.replaceFragment(getActivity().getSupportFragmentManager(),  fragment);
   }
 
@@ -358,7 +330,8 @@ public class OnboardingFragment extends BaseFragment {
     }
 
     @Override
-    public void onSuccess(final String username, final String password, final String result) {
+    public void onSuccess(final String ipAddr, final String username,
+                          final String password, final String result) {
       if (result != null) {
         mainHandler.post(new Runnable() {
           @Override
@@ -366,7 +339,7 @@ public class OnboardingFragment extends BaseFragment {
             OnboardingFragment f = fragment.get();
             if (f != null && f.isAdded()) {
               f.hideProgressDialog();
-              f.loadNextFragment(username, password);
+              f.loadNextFragment(ipAddr, username, password);
             }
           }
         });
@@ -385,32 +358,6 @@ public class OnboardingFragment extends BaseFragment {
           }
         }
       });
-    }
-  }
-
-  private static class JsonRpcCallback implements ApiCallback<JsonRPCApiService,String> {
-
-    private final WeakReference<OnboardingFragment> fragment;
-
-    public JsonRpcCallback(OnboardingFragment fragment) {
-      this.fragment = new WeakReference<>(fragment);
-    }
-
-    @Override
-    public void onSuccess(JsonRPCApiService service, String ipAddress) {
-
-      OnboardingFragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyOnboardingSuccess(ipAddress);
-      }
-    }
-
-    @Override
-    public void onFailure(JsonRPCApiService service, Throwable t) {
-      OnboardingFragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyOnboardingFailure(t);
-      }
     }
   }
 }

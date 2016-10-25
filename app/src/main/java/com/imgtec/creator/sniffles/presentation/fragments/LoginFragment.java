@@ -220,7 +220,7 @@ public class LoginFragment extends BaseFragment {
   }
 
   private void notifyAccountLoginSuccessful(String key, String secret) {
-    ((MainActivity) getActivity()).cacheAccessKeys(key, secret);
+    prefs.saveAccessKeys(key, secret);
     deviceService.login(key, secret, rememberMe, new DeviceServerLoginCallback(this));
   }
 

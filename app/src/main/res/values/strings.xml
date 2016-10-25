@@ -38,5 +38,8 @@
     <string name="start_provisioning">Start Provisioning</string>
     <string name="unprovision">Unprovision</string>
 
+    <string name="is_provisioned">Is provisioned:</string>
+    <string name="ip">IP:</string>
+
 
 </resources>

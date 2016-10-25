@@ -233,17 +233,4 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
     super.onConfigurationChanged(newConfig);
     toggle.onConfigurationChanged(newConfig);
   }
-
-  public String getKey() {
-    return key;
-  }
-
-  public String getSecret() {
-    return secret;
-  }
-
-  public void cacheAccessKeys(String key, String secret) {
-    this.key = key;
-    this.secret = secret;
-  }
 }

@@ -74,7 +74,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
         try {
-          if (userName == null || password == null) {
+          if (ipAddress == null || userName == null || password == null) {
             throw new IllegalStateException("Username and password cannot be null.");
           }
           final String token = authorize(ipAddress, userName, password);
@@ -83,44 +83,82 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
             return;
           }
 
-          notifySuccess(userName, password, token, callback);
+          notifySuccess(ipAddress, userName, password, token, callback);
         }
         catch (Exception e) {
+          logger.warn("JSON-RPC: calling authorize failed!", e);
           notifyError(e, callback);
+        }
+      }
+
+      private void notifySuccess(final String ipAddress, final String userName,
+                                 final String password, final String token,
+                                 final AuthorizationCallback callback) {
+        if (callback != null) {
+          callback.onSuccess(ipAddress, userName, password, token);
+        }
+      }
+
+
+      private void notifyError(final Exception e, final AuthorizationCallback callback) {
+        if (callback != null) {
+          callback.onFailure( e);
         }
       }
     });
   }
 
-  private void notifySuccess(String userName, String password, final String token, final AuthorizationCallback callback) {
-    if (callback != null) {
-      callback.onSuccess(userName, password, token);
-    }
-  }
+  @Override
+  public void isProvisioned(final String ipAddr, final String userName,
+                            final String password, final ApiCallback<JsonRPCApiService, Boolean> callback) {
+    executorService.execute(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
 
+            return;
+          }
+          final String params = String.format("%s %s",
+              "/usr/lib/lua/creator/rpc.lua",
+              "isProvisioned");
 
-  private void notifyError(final Exception e, final AuthorizationCallback callback) {
-    if (callback != null) {
-      callback.onFailure( e);
-    }
+          RpcData data = new RpcData();
+          data.setMethod("exec");
+          data.setParams(Arrays.asList(params));
+          data.setId(id++);
+
+          ExecSysCallRequest sysCallRequest = new ExecSysCallRequest(ipAddr, token, data);
+          Map<String, String> m = (Map<String, String>) sysCallRequest.execute(client, Map.class);
+          if (callback != null) {
+            callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
+          }
+        } catch (Exception e) {
+          logger.warn("JSON-RPC: calling isProvisioned failed!", e);
+          if (callback != null) {
+            callback.onFailure(JsonRPCApiServiceImpl.this, e);
+          }
+        }
+      }
+    });
   }
 
   @Override
-  public void execute(final String ipAddress, final String key, final String secret,
-                      final ApiCallback<JsonRPCApiService, String> callback) {
+  public void provision(final String ipAddress, final String userName, final String password,
+                        final String key, final String secret,
+                        final ApiCallback<JsonRPCApiService, String> callback) {
 
     executorService.execute(new Runnable() {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddress,"","");
+        final String token = authorize(ipAddress, userName, password);
         logger.debug("JSON-RPC: token = {}", token);
 
         try {
-          final String params = String.format("%s %d %s %s %s %s",
-              "/root/imgtec_generate",
-              id,
-              "cert",
+          final String params = String.format("%s %s %s %s",
+              "/usr/lib/lua/creator/rpcOnBoarding.lua",
               "https://deviceserver.flowcloud.systems",
               key,
               secret);
@@ -134,8 +172,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
           if (callback != null) {
             callback.onSuccess(JsonRPCApiServiceImpl.this, ipAddress);
           }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           logger.warn("JSON-RPC: syscall failed!");
           if (callback != null) {
             callback.onFailure(JsonRPCApiServiceImpl.this, e);
