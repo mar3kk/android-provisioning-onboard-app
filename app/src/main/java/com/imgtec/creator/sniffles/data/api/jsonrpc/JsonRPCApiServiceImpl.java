@@ -34,6 +34,7 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 import android.content.Context;
 
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.data.utils.Condition;
 import com.imgtec.di.PerApp;
 
 import org.slf4j.Logger;
@@ -74,35 +75,20 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
         try {
-          if (ipAddress == null || userName == null || password == null) {
-            throw new IllegalStateException("Username and password cannot be null.");
-          }
+
+          Condition.check(callback != null, "Callback cannot be null");
           final String token = authorize(ipAddress, userName, password);
           if (token == null) {
-            notifyError(new AuthorizationFailedException(), callback);
+            callback.onFailure(new AuthorizationFailedException());
             return;
           }
 
-          notifySuccess(ipAddress, userName, password, token, callback);
+          callback.onSuccess(ipAddress, userName, password, token);
+
         }
         catch (Exception e) {
           logger.warn("JSON-RPC: calling authorize failed!", e);
-          notifyError(e, callback);
-        }
-      }
-
-      private void notifySuccess(final String ipAddress, final String userName,
-                                 final String password, final String token,
-                                 final AuthorizationCallback callback) {
-        if (callback != null) {
-          callback.onSuccess(ipAddress, userName, password, token);
-        }
-      }
-
-
-      private void notifyError(final Exception e, final AuthorizationCallback callback) {
-        if (callback != null) {
-          callback.onFailure( e);
+          callback.onFailure(e);
         }
       }
     });
@@ -114,31 +100,25 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
-        try {
-          final String token = authorize(ipAddr, userName, password);
-          if (token == null) {
 
-            return;
-          }
+        final String token = authorize(ipAddr, userName, password);
+        if (token == null) {
+          throw new AuthorizationFailedException();
+        }
+
+        Condition.check(callback != null, "Callback cannot be null");
+
+        try {
           final String params = String.format("%s %s",
               "/usr/lib/lua/creator/rpc.lua",
               "isProvisioned");
 
-          RpcData data = new RpcData();
-          data.setMethod("exec");
-          data.setParams(Arrays.asList(params));
-          data.setId(id++);
+          Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
+          callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
 
-          ExecSysCallRequest sysCallRequest = new ExecSysCallRequest(ipAddr, token, data);
-          Map<String, String> m = (Map<String, String>) sysCallRequest.execute(client, Map.class);
-          if (callback != null) {
-            callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
-          }
         } catch (Exception e) {
           logger.warn("JSON-RPC: calling isProvisioned failed!", e);
-          if (callback != null) {
-            callback.onFailure(JsonRPCApiServiceImpl.this, e);
-          }
+          callback.onFailure(JsonRPCApiServiceImpl.this, e);
         }
       }
     });
@@ -156,27 +136,25 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         final String token = authorize(ipAddress, userName, password);
         logger.debug("JSON-RPC: token = {}", token);
 
+        Condition.check(callback != null, "Callback cannot be null");
+
         try {
           final String params = String.format("%s %s %s %s",
               "/usr/lib/lua/creator/rpcOnBoarding.lua",
               "https://deviceserver.flowcloud.systems",
               key,
               secret);
-          RpcData data = new RpcData();
-          data.setMethod("exec");
-          data.setParams(Arrays.asList(params));
-          data.setId(id++);
 
-          ExecSysCallRequest sysCallRequest = new ExecSysCallRequest(ipAddress, token, data);
-          Map<String, String> m = (Map<String, String>) sysCallRequest.execute(client, Map.class);
-          if (callback != null) {
-            callback.onSuccess(JsonRPCApiServiceImpl.this, ipAddress);
+          Map<String, String> m = performExecSysCall(params, id, ipAddress, token);
+
+          if (m.get("result").isEmpty()) {
+            throw new RuntimeException("Unknown error");
           }
+          callback.onSuccess(JsonRPCApiServiceImpl.this, ipAddress);
         } catch (Exception e) {
           logger.warn("JSON-RPC: syscall failed!");
-          if (callback != null) {
-            callback.onFailure(JsonRPCApiServiceImpl.this, e);
-          }
+
+          callback.onFailure(JsonRPCApiServiceImpl.this, e);
         }
       }
     });
@@ -186,6 +164,9 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       throws IllegalStateException {
 
     try {
+      Condition.check(ipAddr != null, "IP address cannot be null");
+      Condition.check(userName != null && password != null, "Username and password cannot be null.");
+
       RpcData auth = new RpcData();
       auth.setMethod("login");
       auth.setParams(Arrays.asList(userName, password));
@@ -201,5 +182,17 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
     }
 
     throw new IllegalStateException("JSON-RPC: Authorization failed!");
+  }
+
+  private Map<String, String> performExecSysCall(String params, long id, String ipAddress, String token)
+      throws IOException {
+
+    RpcData data = new RpcData();
+    data.setMethod("exec");
+    data.setParams(Arrays.asList(params));
+    data.setId(id++);
+
+    ExecSysCallRequest sysCallRequest = new ExecSysCallRequest(ipAddress, token, data);
+    return (Map<String, String>) sysCallRequest.execute(client, Map.class);
   }
 }

@@ -123,7 +123,7 @@ public class Ci40Fragment extends BaseFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    ip.setText(ipAddr);
+    ip.setText(String.format("[%s]", ipAddr));
   }
 
   @Override
