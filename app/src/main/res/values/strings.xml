@@ -41,5 +41,9 @@
     <string name="is_provisioned">Is provisioned:</string>
     <string name="ip">IP:</string>
 
+    <string name="no_client_found">No clients found</string>
+    <string name="retry">Retry</string>
+    <string name="refresh">Refresh</string>
+
 
 </resources>

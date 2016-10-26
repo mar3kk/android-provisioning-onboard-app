@@ -32,28 +32,59 @@
 package com.imgtec.creator.sniffles.presentation.fragments;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.imgtec.creator.sniffles.R;
+import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerApiService;
+import com.imgtec.creator.sniffles.data.api.pojo.Client;
+import com.imgtec.creator.sniffles.data.api.pojo.Clients;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
+import com.imgtec.creator.sniffles.presentation.adapters.ClientsAdapter;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
+import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
+import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
+import com.imgtec.creator.sniffles.presentation.views.HorizontalItemDecoration;
+import com.imgtec.creator.sniffles.presentation.views.RecyclerItemClickSupport;
 import com.imgtec.di.HasComponent;
 
+import java.lang.ref.WeakReference;
+
 import javax.inject.Inject;
+import javax.inject.Named;
+
+import butterknife.BindView;
 
 /**
  *
  */
 public class ClientsFragment extends BaseFragment {
 
+  @BindView(R.id.clients_list) RecyclerView recyclerView;
+
   @Inject DrawerHelper drawerHelper;
+  @Inject ToolbarHelper toolbarHelper;
+  @Inject @Named("Main") Handler mainHandler;
+  @Inject DeviceServerApiService deviceServerApiService;
+
+  private ClientsAdapter adapter;
+  private AlertDialog retryDialog;
 
   public ClientsFragment() {
     // Required empty public constructor
@@ -91,6 +122,7 @@ public class ClientsFragment extends BaseFragment {
     actionBar.setTitle(R.string.clients);
     actionBar.setDisplayHomeAsUpEnabled(false);
     actionBar.setHomeButtonEnabled(true);
+    setHasOptionsMenu(true);
   }
 
   @Override
@@ -99,4 +131,131 @@ public class ClientsFragment extends BaseFragment {
     drawerHelper.setSelector(0);
   }
 
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    final DefaultItemAnimator itemAnimator = new DefaultItemAnimator();
+    itemAnimator.setAddDuration(200);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+    recyclerView.addItemDecoration(new HorizontalItemDecoration(getActivity()));
+    recyclerView.setHasFixedSize(true);
+    recyclerView.setItemAnimator(itemAnimator);
+
+    adapter = new ClientsAdapter();
+    recyclerView.setAdapter(adapter);
+
+    RecyclerItemClickSupport.addTo(recyclerView)
+        .setOnItemClickListener(new RecyclerItemClickSupport.OnItemClickListener() {
+          @Override
+          public void onItemClicked(RecyclerView recyclerView, int position, View view) {
+            Client client = adapter.getItem(position);
+            //TODO: implement detailed view
+          }
+        });
+
+    requestClients();
+  }
+
+  @Override
+  public void onPause() {
+    if (retryDialog != null) {
+      retryDialog.dismiss();
+      retryDialog = null;
+    }
+    super.onPause();
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.menu_clients_fragment, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch(item.getItemId()) {
+      case R.id.action_refresh:
+        requestClients();
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void requestClients() {
+    toolbarHelper.showProgress();
+    deviceServerApiService.requestClients(new DeviceServerApiService.Filter<Client>() {
+      @Override
+      public boolean accept(Client filter) {
+        return true;
+      }
+    }, new ClientsCallback(this, mainHandler));
+  }
+
+  private void showRetryDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    builder
+        .setMessage(R.string.no_client_found)
+        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            retryDialog = null;
+          }
+        })
+        .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            requestClients();
+            dialog.dismiss();
+            retryDialog = null;
+          }
+        });
+
+    retryDialog = builder.create();
+    retryDialog.show();
+  }
+
+  static class ClientsCallback implements ApiCallback<DeviceServerApiService,Clients> {
+
+    private final WeakReference<ClientsFragment> fragment;
+    private final Handler mainHandler;
+
+    public ClientsCallback(ClientsFragment fragment, Handler mainHandler) {
+      super();
+      this.fragment = new WeakReference<>(fragment);
+      this.mainHandler = mainHandler;
+    }
+
+    @Override
+    public void onSuccess(DeviceServerApiService service, final Clients result) {
+      mainHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          ClientsFragment f = fragment.get();
+          if (f != null && f.isAdded()) {
+            f.toolbarHelper.hideProgress();
+            if (result.getItems().size() == 0) {
+              f.showRetryDialog();
+              return;
+            }
+            f.adapter.clear();
+            f.adapter.addAll(result.getItems());
+            f.adapter.notifyDataSetChanged();
+          }
+        }
+      });
+    }
+
+    @Override
+    public void onFailure(DeviceServerApiService service, Throwable t) {
+      mainHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          ClientsFragment f = fragment.get();
+          if (f != null && f.isAdded()) {
+            f.toolbarHelper.hideProgress();
+          }
+        }
+      });
+    }
+  }
 }
