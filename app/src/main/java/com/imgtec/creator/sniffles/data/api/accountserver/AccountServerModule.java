@@ -78,9 +78,9 @@ public class AccountServerModule {
   @Provides
   IdConfig provideIdConfig() {
     final String url = "https://id.creatordev.io/oauth2/auth";
-    final String client_id = "1c6c7bee-b5d0-440c-9b5a-61f54a62c18d";
+    final String client_id = "7b704b12-0006-4ed9-a4ab-09793a25a1a0";
     final String scope = "core+openid+offline";
-    final Uri redirectUri = Uri.parse("io.creatordev.kit.powerswitch:/callback");
+    final Uri redirectUri = Uri.parse("io.creatordev.onboarding:/callback");
     final String state = "dummy_state";     //not used for now
     final String response_type = "id_token";
     return new IdConfig(url, client_id, scope, redirectUri, state, response_type);

@@ -90,9 +90,6 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
   ActionBarDrawerToggle toggle;
   Unbinder unbinder;
 
-  String key;
-  String secret;
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
