@@ -95,8 +95,8 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
   }
 
   @Override
-  public void isProvisioned(final String ipAddr, final String userName,
-                            final String password, final ApiCallback<JsonRPCApiService, Boolean> callback) {
+  public void isConfigured(final String ipAddr, final String userName,
+                           final String password, final ApiCallback<JsonRPCApiService, Boolean> callback) {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
@@ -117,7 +117,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
           callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
 
         } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isProvisioned failed!", e);
+          logger.warn("JSON-RPC: calling isConfigured failed!", e);
           callback.onFailure(JsonRPCApiServiceImpl.this, e);
         }
       }
@@ -125,9 +125,9 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
   }
 
   @Override
-  public void provision(final String ipAddress, final String userName, final String password,
-                        final String key, final String secret,
-                        final ApiCallback<JsonRPCApiService, String> callback) {
+  public void onboarding(final String ipAddress, final String userName, final String password,
+                         final String clientName, final String key, final String secret,
+                         final ApiCallback<JsonRPCApiService, String> callback) {
 
     executorService.execute(new Runnable() {
       @Override
@@ -139,9 +139,10 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         Condition.check(callback != null, "Callback cannot be null");
 
         try {
-          final String params = String.format("%s %s %s %s",
+          final String params = String.format("%s %s %s %s %s",
               "/usr/lib/lua/creator/rpcOnBoarding.lua",
               "https://deviceserver.flowcloud.systems",
+              clientName.isEmpty() ? "" : clientName,
               key,
               secret);
 
@@ -154,6 +155,35 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         } catch (Exception e) {
           logger.warn("JSON-RPC: syscall failed!");
 
+          callback.onFailure(JsonRPCApiServiceImpl.this, e);
+        }
+      }
+    });
+  }
+
+  @Override
+  public void removeConfiguration(final String ipAddr, final String userName, final String password,
+                                  final ApiCallback<JsonRPCApiService, Boolean> callback) {
+    executorService.execute(new Runnable() {
+      @Override
+      public void run() {
+
+        final String token = authorize(ipAddr, userName, password);
+        if (token == null) {
+          throw new AuthorizationFailedException();
+        }
+
+        Condition.check(callback != null, "Callback cannot be null");
+
+        try {
+          final String params = String.format("%s",
+              "/usr/lib/lua/creator/rpcRemoveConfiguration.lua");
+
+          Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
+          callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
+
+        } catch (Exception e) {
+          logger.warn("JSON-RPC: calling isConfigured failed!", e);
           callback.onFailure(JsonRPCApiServiceImpl.this, e);
         }
       }

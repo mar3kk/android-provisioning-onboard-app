@@ -1,16 +1,19 @@
 package com.imgtec.creator.sniffles.presentation.fragments;
 
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +22,6 @@ import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
-import com.imgtec.creator.sniffles.presentation.MainActivity;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.di.HasComponent;
 
@@ -47,15 +49,16 @@ public class Ci40Fragment extends BaseFragment {
   private String userName;
   private String password;
 
-  @BindView(R.id.provisioning) AppCompatButton provision;
-  @BindView(R.id.unprovision) AppCompatButton unprovision;
+  @BindView(R.id.startConfiguration) AppCompatButton startConfiguration;
+  @BindView(R.id.removeConfiguration) AppCompatButton removeConfiguration;
   @BindView(R.id.ip) TextView ip;
-  @BindView(R.id.isProvisioned) TextView isProvisioned;
+  @BindView(R.id.isConfigured) TextView isConfigured;
 
   @Inject @Named("Main") Handler mainHandler;
   @Inject Preferences prefs;
   @Inject ToolbarHelper toolbarHelper;
   @Inject JsonRPCApiService jsonRpc;
+  private AlertDialog clientNameDialog;
 
   public Ci40Fragment() {
     // Required empty public constructor
@@ -132,57 +135,79 @@ public class Ci40Fragment extends BaseFragment {
     requestIfProvisioned();
   }
 
+  @Override
+  public void onPause() {
+    if (clientNameDialog != null) {
+      clientNameDialog.dismiss();
+      clientNameDialog = null;
+    }
+    super.onPause();
+  }
+
   private void requestIfProvisioned() {
     toolbarHelper.showProgress();
-    jsonRpc.isProvisioned(ipAddr, userName, password, new IsProvisionedCallback(this));
+    jsonRpc.isConfigured(ipAddr, userName, password, new IsProvisionedCallback(this));
   }
 
-  @OnClick(R.id.provisioning)
-  void onProvisioning() {
-    provision.setEnabled(false);
-    toolbarHelper.showProgress();
-
-    final String key = prefs.getKey();
-    final String secret = prefs.getSecret();
-    jsonRpc.provision(ipAddr, userName, password, key, secret, new JsonRpcCallback(this));
+  @OnClick(R.id.startConfiguration)
+  void onStartConfiguration() {
+    showSetNameDialog();
   }
 
-  @OnClick(R.id.unprovision)
-  void onUnprovision() {
-    //TODO: implement
+  private void showSetNameDialog() {
+    final View dialogView = getLayoutInflater(null).inflate(R.layout.client_name_dialog, null);
+    final EditText name = (EditText) dialogView.findViewById(R.id.name);
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogStyle);
+    builder
+        .setTitle(R.string.enter_client_name)
+        .setView(dialogView)
+        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+            clientNameDialog = null;
+          }
+        })
+        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+
+            dialog.dismiss();
+            clientNameDialog = null;
+
+            setButtonsEnabled(false);
+            toolbarHelper.showProgress();
+
+            final String key = prefs.getKey();
+            final String secret = prefs.getSecret();
+            final String clientName = name.getText().toString();
+
+            jsonRpc.onboarding(ipAddr, userName, password, key, secret, clientName,
+                new JsonRpcCallback(Ci40Fragment.this));
+          }
+        });
+
+    clientNameDialog = builder.create();
+    clientNameDialog.show();
+  }
+
+  private void setButtonsEnabled(boolean enabled) {
+    startConfiguration.setEnabled(enabled);
+    removeConfiguration.setEnabled(enabled);
+  }
+
+  @OnClick(R.id.removeConfiguration)
+  void onRemoveConfiguration() {
+    jsonRpc.removeConfiguration(ipAddr, userName, password, new RemoveConfigurationCallback(Ci40Fragment.this));
     toolbarHelper.hideProgress();
   }
-
-  private void notifyOnboardingSuccess(final String ipAddress) {
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-      toolbarHelper.hideProgress();
-        provision.setEnabled(true);
-        Toast.makeText(getContext(), "Provisioning successful!", Toast.LENGTH_LONG).show();
-      }
-    });
-    requestIfProvisioned();
-  }
-
-  private void notifyOnboardingFailure(final Throwable t) {
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        toolbarHelper.hideProgress();
-        provision.setEnabled(true);
-        Toast.makeText(getContext(), "Provisioning failed! " + t.getMessage(), Toast.LENGTH_LONG).show();
-      }
-    });
-  }
-
 
   private void onIsProvisioned(final Boolean result) {
     mainHandler.post(new Runnable() {
       @Override
       public void run() {
         toolbarHelper.hideProgress();
-        isProvisioned.setText(result ? "[YES]" : "[NO]");
+        isConfigured.setText(result ? "[YES]" : "[NO]");
       }
     });
   }
@@ -193,8 +218,8 @@ public class Ci40Fragment extends BaseFragment {
       @Override
       public void run() {
         toolbarHelper.hideProgress();
-        isProvisioned.setTextColor(Color.RED);
-        isProvisioned.setText("[FAILED]");
+        isConfigured.setTextColor(Color.RED);
+        isConfigured.setText("[FAILED]");
       }
     });
   }
@@ -225,7 +250,6 @@ public class Ci40Fragment extends BaseFragment {
   }
 
 
-
   private static class JsonRpcCallback implements ApiCallback<JsonRPCApiService,String> {
 
     private final WeakReference<Ci40Fragment> fragment;
@@ -250,5 +274,61 @@ public class Ci40Fragment extends BaseFragment {
         f.notifyOnboardingFailure(t);
       }
     }
+  }
+
+  static class RemoveConfigurationCallback implements ApiCallback<JsonRPCApiService,Boolean> {
+
+    private final WeakReference<Ci40Fragment> fragment;
+
+    public RemoveConfigurationCallback(Ci40Fragment fragment) {
+      super();
+      this.fragment = new WeakReference<>(fragment);
+    }
+
+    @Override
+    public void onSuccess(JsonRPCApiService service, Boolean result) {
+      Ci40Fragment f = fragment.get();
+      if (f != null && f.isAdded()) {
+        f.notifyRemoveConfigurationFinished(result);
+      }
+    }
+
+    @Override
+    public void onFailure(JsonRPCApiService service, Throwable t) {
+      Ci40Fragment f = fragment.get();
+      if (f != null && f.isAdded()) {
+        f.notifyRemoveConfigurationFailed(t);
+      }
+    }
+  }
+
+
+  private void notifyOnboardingSuccess(final String ipAddress) {
+    notifyOperationFinished("Onboarding successful!");
+    requestIfProvisioned();
+  }
+
+  private void notifyOnboardingFailure(final Throwable t) {
+    notifyOperationFinished("Onboarding failed! " + t.getMessage());
+  }
+
+  private void notifyRemoveConfigurationFinished(Boolean result) {
+    notifyOperationFinished("Configuration removed!");
+    requestIfProvisioned();
+  }
+
+  private void notifyRemoveConfigurationFailed(Throwable t) {
+    notifyOperationFinished("Failed to remove configuration!" + t.getMessage());
+  }
+
+  private void notifyOperationFinished(final String message) {
+    mainHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        toolbarHelper.hideProgress();
+        setButtonsEnabled(true);
+        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+      }
+    });
   }
 }

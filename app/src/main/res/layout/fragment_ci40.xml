@@ -33,11 +33,11 @@
             android:layout_column="0"
             android:layout_row="1"
             android:layout_gravity="left"
-            android:text="@string/is_provisioned"
+            android:text="@string/is_configured"
             style="@style/GridItemText"/>
 
         <TextView
-            android:id="@+id/isProvisioned"
+            android:id="@+id/isConfigured"
             android:layout_column="1"
             android:layout_row="1"
             android:layout_gravity="right"
@@ -46,20 +46,21 @@
     </GridLayout>
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/provisioning"
+        android:id="@+id/startConfiguration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/start_provisioning"
+        android:text="@string/start_configuration"
         android:layout_margin="12dp"
         style="@style/CustomButtonStyle.OnOff"
         />
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/unprovision"
+        android:id="@+id/removeConfiguration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/unprovision"
+        android:text="@string/remove_configuration"
         android:layout_margin="12dp"
+        style="@style/CustomButtonStyle.OnOff"
         />
 
 </LinearLayout>

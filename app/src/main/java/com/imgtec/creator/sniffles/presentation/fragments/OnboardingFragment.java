@@ -62,6 +62,7 @@ import com.imgtec.creator.sniffles.presentation.ActivityComponent;
 import com.imgtec.creator.sniffles.presentation.adapters.DiscoveredServicesAdapter;
 import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
+import com.imgtec.creator.sniffles.presentation.helpers.UiHelper;
 import com.imgtec.creator.sniffles.presentation.views.HorizontalItemDecoration;
 import com.imgtec.creator.sniffles.presentation.views.RecyclerItemClickSupport;
 import com.imgtec.di.HasComponent;
@@ -220,7 +221,7 @@ public class OnboardingFragment extends BaseFragment {
             userName = username.getText().toString();
             password = passwd.getText().toString();
 
-            hideSoftKeyboard(passwd);
+            UiHelper.hideSoftKeyboard(getActivity(), passwd);
 
             dialog.dismiss();
             rpcLoginDialog = null;
@@ -234,13 +235,6 @@ public class OnboardingFragment extends BaseFragment {
 
     rpcLoginDialog = builder.create();
     rpcLoginDialog.show();
-
-  }
-
-  private void hideSoftKeyboard(View view) {
-
-    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
   }
 

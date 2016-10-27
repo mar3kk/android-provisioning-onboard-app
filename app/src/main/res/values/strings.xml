@@ -35,15 +35,16 @@
     <string name="enter_credentials">Enter credentials</string>
 
     <string name="ci_40">Ci 40</string>
-    <string name="start_provisioning">Start Provisioning</string>
-    <string name="unprovision">Unprovision</string>
+    <string name="start_configuration">Start configuration</string>
+    <string name="remove_configuration">Remove configuration</string>
 
-    <string name="is_provisioned">Is provisioned:</string>
+    <string name="is_configured">Is configured:</string>
     <string name="ip">IP:</string>
 
     <string name="no_client_found">No clients found</string>
     <string name="retry">Retry</string>
     <string name="refresh">Refresh</string>
+    <string name="enter_client_name">Set client name</string>
 
 
 </resources>

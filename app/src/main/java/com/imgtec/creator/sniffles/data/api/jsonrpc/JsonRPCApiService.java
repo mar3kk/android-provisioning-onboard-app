@@ -39,7 +39,6 @@ import com.imgtec.creator.sniffles.data.api.ApiCallback;
 public interface JsonRPCApiService {
 
 
-
   interface AuthorizationCallback {
     void onSuccess(final String ipAddr, final String userName, final String password,
                    final String token);
@@ -49,10 +48,13 @@ public interface JsonRPCApiService {
   void authorize(String ipAddress, final String userName, final String password,
                  AuthorizationCallback callback);
 
-  void isProvisioned(String ipAddr, final String userName, final String password,
-                     ApiCallback<JsonRPCApiService, Boolean> callback);
+  void isConfigured(String ipAddr, final String userName, final String password,
+                    ApiCallback<JsonRPCApiService, Boolean> callback);
 
-  void provision(final String ipAddress, final String userName, final String password,
-                 final String key, final String secret,
-                 ApiCallback<JsonRPCApiService, String> callback);
+  void onboarding(final String ipAddress, final String userName, final String password,
+                  final String clientName, final String key, final String secret,
+                  ApiCallback<JsonRPCApiService, String> callback);
+
+  void removeConfiguration(String ipAddr, String userName, String password,
+                           final ApiCallback<JsonRPCApiService, Boolean> callback);
 }
