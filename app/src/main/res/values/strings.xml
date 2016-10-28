@@ -45,6 +45,9 @@
     <string name="retry">Retry</string>
     <string name="refresh">Refresh</string>
     <string name="enter_client_name">Set client name</string>
+    <string name="ssid">SSID</string>
+    <string name="macaddr">MAC ADDRESS</string>
+    <string name="host">Host</string>
 
 
 </resources>

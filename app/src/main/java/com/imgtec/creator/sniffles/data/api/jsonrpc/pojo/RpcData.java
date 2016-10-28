@@ -29,7 +29,7 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.jsonrpc;
+package com.imgtec.creator.sniffles.data.api.jsonrpc.pojo;
 
 
 import com.google.gson.annotations.Expose;

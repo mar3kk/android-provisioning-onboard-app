@@ -33,6 +33,7 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 
 
 import com.google.gson.GsonBuilder;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
 
 import java.io.IOException;
 

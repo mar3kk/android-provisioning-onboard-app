@@ -21,6 +21,8 @@ import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.Wireless;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.di.HasComponent;
@@ -40,6 +42,7 @@ import butterknife.OnClick;
 
 public class Ci40Fragment extends BaseFragment {
 
+  private static final String UNKNOWN = "[UNKNOWN]";
   private static final String ARG_IP_ADDR = "ip_addr";
   private static final String ARG_USER_NAME = "user_name";
   private static final String ARG_PASSWORD = "password";
@@ -53,6 +56,9 @@ public class Ci40Fragment extends BaseFragment {
   @BindView(R.id.removeConfiguration) AppCompatButton removeConfiguration;
   @BindView(R.id.ip) TextView ip;
   @BindView(R.id.isConfigured) TextView isConfigured;
+  @BindView(R.id.host) TextView host;
+  @BindView(R.id.ssid) TextView ssid;
+  @BindView(R.id.mac_addr) TextView mac;
 
   @Inject @Named("Main") Handler mainHandler;
   @Inject Preferences prefs;
@@ -147,6 +153,7 @@ public class Ci40Fragment extends BaseFragment {
   private void requestIfProvisioned() {
     toolbarHelper.showProgress();
     jsonRpc.isConfigured(ipAddr, userName, password, new IsProvisionedCallback(this));
+    jsonRpc.requestInfo(ipAddr, userName, password, new BoardDataCallback(this));
   }
 
   @OnClick(R.id.startConfiguration)
@@ -302,6 +309,52 @@ public class Ci40Fragment extends BaseFragment {
     }
   }
 
+  static class BoardDataCallback implements ApiCallback<JsonRPCApiService,RpcInfo> {
+
+    private final WeakReference<Ci40Fragment> fragment;
+
+    public BoardDataCallback(Ci40Fragment fragment) {
+      super();
+      this.fragment = new WeakReference<>(fragment);
+    }
+
+    @Override
+    public void onSuccess(JsonRPCApiService service, RpcInfo result) {
+      Ci40Fragment f = fragment.get();
+      if (f != null && f.isAdded()) {
+        f.notifyDataReceived(result);
+      }
+    }
+
+    @Override
+    public void onFailure(JsonRPCApiService service, Throwable t) {
+      Ci40Fragment f = fragment.get();
+      if (f != null && f.isAdded()) {
+        f.notifyBoardDataFailed(t);
+      }
+    }
+  }
+
+  private void notifyDataReceived(final RpcInfo result) {
+    mainHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        if (result == null) {
+          return;
+        }
+        host.setText(String.format("[%s]", (result.getHost() != null) ? result.getHost() : UNKNOWN));
+        final Wireless w = result.getWireless();
+        if (w != null) {
+          ssid.setText(String.format("[%s]", (w.getSsid() != null) ? w.getSsid() : UNKNOWN));
+          mac.setText(String.format("[%s]", (w.getMacaddr() != null) ? w.getMacaddr() : UNKNOWN));
+        }
+      }
+    });
+  }
+
+  private void notifyBoardDataFailed(final Throwable t) {
+    notifyOperationFinished("Getting board data failed! " + t.getMessage());
+  }
 
   private void notifyOnboardingSuccess(final String ipAddress) {
     notifyOperationFinished("Onboarding successful!");

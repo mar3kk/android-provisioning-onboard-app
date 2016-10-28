@@ -32,6 +32,7 @@
 package com.imgtec.creator.sniffles.data.api.jsonrpc;
 
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
 
 /**
  *
@@ -57,4 +58,7 @@ public interface JsonRPCApiService {
 
   void removeConfiguration(String ipAddr, String userName, String password,
                            final ApiCallback<JsonRPCApiService, Boolean> callback);
+
+  void requestInfo(String ipAddr, String userName, String password,
+                   final ApiCallback<JsonRPCApiService, RpcInfo> callback);
 }

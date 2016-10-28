@@ -33,9 +33,11 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
 import com.imgtec.creator.sniffles.data.utils.Condition;
-import com.imgtec.di.PerApp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,6 +183,36 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
 
           Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
           callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
+
+        } catch (Exception e) {
+          logger.warn("JSON-RPC: calling isConfigured failed!", e);
+          callback.onFailure(JsonRPCApiServiceImpl.this, e);
+        }
+      }
+    });
+  }
+
+  @Override
+  public void requestInfo(final String ipAddr, final String userName, final String password,
+                          final ApiCallback<JsonRPCApiService, RpcInfo> callback) {
+    executorService.execute(new Runnable() {
+      @Override
+      public void run() {
+
+        final String token = authorize(ipAddr, userName, password);
+        if (token == null) {
+          throw new AuthorizationFailedException();
+        }
+
+        Condition.check(callback != null, "Callback cannot be null");
+
+        try {
+          final String params = String.format("%s %s",
+              "/usr/lib/lua/creator/rpc.lua", "getInfo");
+
+          Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
+          RpcInfo data = new Gson().fromJson(m.get("result"), RpcInfo.class);
+          callback.onSuccess(JsonRPCApiServiceImpl.this, data);
 
         } catch (Exception e) {
           logger.warn("JSON-RPC: calling isConfigured failed!", e);
