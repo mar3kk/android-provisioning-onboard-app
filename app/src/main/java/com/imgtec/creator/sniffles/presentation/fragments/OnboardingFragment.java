@@ -33,7 +33,6 @@ package com.imgtec.creator.sniffles.presentation.fragments;
 
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,7 +46,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -56,7 +54,6 @@ import com.imgtec.creator.sniffles.data.NsdService;
 import com.imgtec.creator.sniffles.data.NsdServiceImpl;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.ServiceInfo;
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
 import com.imgtec.creator.sniffles.presentation.adapters.DiscoveredServicesAdapter;

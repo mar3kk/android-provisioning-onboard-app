@@ -31,7 +31,6 @@
 
 package com.imgtec.creator.sniffles.presentation.adapters;
 
-import android.net.nsd.NsdServiceInfo;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;

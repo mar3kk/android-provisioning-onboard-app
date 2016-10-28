@@ -32,7 +32,6 @@
 package com.imgtec.creator.sniffles.app;
 
 import android.content.SharedPreferences;
-import android.net.nsd.NsdManager;
 import android.os.Handler;
 
 import com.imgtec.creator.sniffles.data.DataModule;

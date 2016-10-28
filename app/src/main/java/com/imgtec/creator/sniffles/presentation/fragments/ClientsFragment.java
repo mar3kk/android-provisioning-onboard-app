@@ -37,7 +37,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -51,20 +50,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.imgtec.creator.sniffles.R;
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerApiService;
 import com.imgtec.creator.sniffles.data.api.pojo.Client;
 import com.imgtec.creator.sniffles.data.api.pojo.Clients;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
 import com.imgtec.creator.sniffles.presentation.adapters.ClientsAdapter;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
-import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.creator.sniffles.presentation.views.HorizontalItemDecoration;
 import com.imgtec.creator.sniffles.presentation.views.RecyclerItemClickSupport;
 import com.imgtec.di.HasComponent;
-
-import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -214,48 +209,30 @@ public class ClientsFragment extends BaseFragment {
     retryDialog.show();
   }
 
-  static class ClientsCallback implements ApiCallback<DeviceServerApiService,Clients> {
-
-    private final WeakReference<ClientsFragment> fragment;
-    private final Handler mainHandler;
+  static class ClientsCallback extends AbstractCallback<ClientsFragment, DeviceServerApiService, Clients> {
 
     public ClientsCallback(ClientsFragment fragment, Handler mainHandler) {
-      super();
-      this.fragment = new WeakReference<>(fragment);
-      this.mainHandler = mainHandler;
+      super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(DeviceServerApiService service, final Clients result) {
-      mainHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          ClientsFragment f = fragment.get();
-          if (f != null && f.isAdded()) {
-            f.toolbarHelper.hideProgress();
-            if (result.getItems().size() == 0) {
-              f.showRetryDialog();
-              return;
-            }
-            f.adapter.clear();
-            f.adapter.addAll(result.getItems());
-            f.adapter.notifyDataSetChanged();
-          }
-        }
-      });
+    public void onSuccess(ClientsFragment fragment, DeviceServerApiService service, final Clients result) {
+
+      fragment.toolbarHelper.hideProgress();
+      if (result.getItems().size() == 0) {
+        fragment.showRetryDialog();
+        return;
+      }
+      fragment.adapter.clear();
+      fragment.adapter.addAll(result.getItems());
+      fragment.adapter.notifyDataSetChanged();
+
     }
 
     @Override
-    public void onFailure(DeviceServerApiService service, Throwable t) {
-      mainHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          ClientsFragment f = fragment.get();
-          if (f != null && f.isAdded()) {
-            f.toolbarHelper.hideProgress();
-          }
-        }
-      });
+    public void onFailure(ClientsFragment fragment, DeviceServerApiService service, Throwable t) {
+
+      fragment.toolbarHelper.hideProgress();
     }
   }
 }

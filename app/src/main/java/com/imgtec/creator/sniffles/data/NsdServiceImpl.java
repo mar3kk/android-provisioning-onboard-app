@@ -36,7 +36,6 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Handler;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

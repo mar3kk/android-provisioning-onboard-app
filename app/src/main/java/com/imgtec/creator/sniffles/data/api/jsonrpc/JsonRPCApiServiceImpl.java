@@ -37,7 +37,7 @@ import com.google.gson.Gson;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
-import com.imgtec.creator.sniffles.data.utils.Condition;
+import com.imgtec.creator.sniffles.utils.Condition;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-
 
 import okhttp3.OkHttpClient;
 
@@ -78,7 +77,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       public void run() {
         try {
 
-          Condition.check(callback != null, "Callback cannot be null");
+          Condition.checkArgument(callback != null, "Callback cannot be null");
           final String token = authorize(ipAddress, userName, password);
           if (token == null) {
             callback.onFailure(new AuthorizationFailedException());
@@ -108,7 +107,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
           throw new AuthorizationFailedException();
         }
 
-        Condition.check(callback != null, "Callback cannot be null");
+        Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
           final String params = String.format("%s %s",
@@ -138,7 +137,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         final String token = authorize(ipAddress, userName, password);
         logger.debug("JSON-RPC: token = {}", token);
 
-        Condition.check(callback != null, "Callback cannot be null");
+        Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
           final String params = String.format("%s %s %s %s %s",
@@ -175,7 +174,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
           throw new AuthorizationFailedException();
         }
 
-        Condition.check(callback != null, "Callback cannot be null");
+        Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
           final String params = String.format("%s",
@@ -204,7 +203,7 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
           throw new AuthorizationFailedException();
         }
 
-        Condition.check(callback != null, "Callback cannot be null");
+        Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
           final String params = String.format("%s %s",
@@ -226,8 +225,8 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       throws IllegalStateException {
 
     try {
-      Condition.check(ipAddr != null, "IP address cannot be null");
-      Condition.check(userName != null && password != null, "Username and password cannot be null.");
+      Condition.checkArgument(ipAddr != null, "IP address cannot be null");
+      Condition.checkArgument(userName != null && password != null, "Username and password cannot be null.");
 
       RpcData auth = new RpcData();
       auth.setMethod("login");

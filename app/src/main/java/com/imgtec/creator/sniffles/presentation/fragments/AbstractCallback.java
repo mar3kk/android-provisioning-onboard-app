@@ -29,14 +29,56 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.utils;
+package com.imgtec.creator.sniffles.presentation.fragments;
+
+import android.os.Handler;
+
+import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.utils.Condition;
+
+import java.lang.ref.WeakReference;
 
 
-public class Condition {
+public abstract class AbstractCallback<F extends BaseFragment, S,T> implements ApiCallback<S, T>{
 
-  public static void check(boolean condition, String errorMessage, Object... messageArgs) {
-    if (condition == false) {
-      throw new IllegalStateException(String.format(errorMessage, messageArgs));
-    }
+  final Handler mainHandler;
+  WeakReference<F> fragment;
+
+  public AbstractCallback(F fragment, Handler mainHandler) throws IllegalArgumentException {
+    super();
+    Condition.checkArgument(fragment != null, "Fragment cannot be null");
+    Condition.checkArgument(mainHandler != null, "Handler cannot be null");
+    this.fragment = new WeakReference<>(fragment);
+    this.mainHandler = mainHandler;
   }
+
+  @Override
+  public void onSuccess(final S service, final T result) {
+    mainHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        F f = fragment.get();
+        if (f != null && f.isAdded()) {
+          onSuccess(f, service, result);
+        }
+      }
+    });
+  }
+
+  @Override
+  public void onFailure(final S service, final Throwable t) {
+    mainHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        F f = fragment.get();
+        if (f != null && f.isAdded()) {
+          onFailure(f, service, t);
+        }
+      }
+    });
+  }
+
+  protected abstract void onSuccess(F fragment, S service, T result);
+
+  protected abstract void onFailure(F fragment, S service, Throwable t);
 }

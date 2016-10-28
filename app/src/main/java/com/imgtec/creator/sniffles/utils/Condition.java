@@ -29,58 +29,20 @@
  *
  */
 
-package com.imgtec.creator.sniffles.presentation.helpers;
-
-import android.app.Activity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-
-import com.imgtec.creator.sniffles.R;
-
-import java.lang.ref.WeakReference;
-
-import javax.inject.Inject;
-
-/**
- *
- */
-public class ToolbarHelper {
-
-  private final Activity activity;
-  private WeakReference<Toolbar> toolbar;
+package com.imgtec.creator.sniffles.utils;
 
 
-  @Inject public ToolbarHelper(Activity activity) {
-    this.activity = activity;
-  }
+public class Condition {
 
-  public Toolbar getToolbar() {
-    if (toolbar == null) {
-      throw new IllegalArgumentException("Set toolbar first.");
+  public static void check(boolean condition, String errorMessage, Object... messageArgs) {
+    if (condition == false) {
+      throw new IllegalStateException(String.format(errorMessage, messageArgs));
     }
-    return toolbar.get();
   }
 
-  public void setToolbar(Toolbar toolbar) {
-    this.toolbar = new WeakReference<>(toolbar);
-  }
-
-  public void showProgress() {
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        toolbar.get().findViewById(R.id.progress).setVisibility(View.VISIBLE);
-
-      }
-    });
-  }
-
-  public void hideProgress() {
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        toolbar.get().findViewById(R.id.progress).setVisibility(View.GONE);
-      }
-    });
+  public static void checkArgument(boolean condition, String errorMessage, Object... messageArgs) {
+    if (condition == false) {
+      throw new IllegalArgumentException(String.format(errorMessage, messageArgs));
+    }
   }
 }

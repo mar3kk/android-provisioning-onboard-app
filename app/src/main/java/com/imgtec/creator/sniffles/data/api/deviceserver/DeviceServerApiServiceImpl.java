@@ -34,7 +34,6 @@ package com.imgtec.creator.sniffles.data.api.deviceserver;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.google.gson.reflect.TypeToken;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.oauth.OauthManager;

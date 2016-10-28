@@ -50,7 +50,6 @@ import android.widget.Toast;
 
 import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.data.Preferences;
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.Wireless;
@@ -60,9 +59,6 @@ import com.imgtec.di.HasComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.ref.WeakReference;
-
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -183,8 +179,8 @@ public class Ci40Fragment extends BaseFragment {
 
   private void requestIfProvisioned() {
     toolbarHelper.showProgress();
-    jsonRpc.isConfigured(ipAddr, userName, password, new IsProvisionedCallback(this));
-    jsonRpc.requestInfo(ipAddr, userName, password, new BoardDataCallback(this));
+    jsonRpc.isConfigured(ipAddr, userName, password, new IsProvisionedCallback(this, mainHandler));
+    jsonRpc.requestInfo(ipAddr, userName, password, new BoardDataCallback(this, mainHandler));
   }
 
   @OnClick(R.id.startConfiguration)
@@ -221,7 +217,7 @@ public class Ci40Fragment extends BaseFragment {
             final String clientName = name.getText().toString();
 
             jsonRpc.onboarding(ipAddr, userName, password, key, secret, clientName,
-                new JsonRpcCallback(Ci40Fragment.this));
+                new JsonRpcCallback(Ci40Fragment.this, mainHandler));
           }
         });
 
@@ -236,7 +232,7 @@ public class Ci40Fragment extends BaseFragment {
 
   @OnClick(R.id.removeConfiguration)
   void onRemoveConfiguration() {
-    jsonRpc.removeConfiguration(ipAddr, userName, password, new RemoveConfigurationCallback(Ci40Fragment.this));
+    jsonRpc.removeConfiguration(ipAddr, userName, password, new RemoveConfigurationCallback(Ci40Fragment.this, mainHandler));
     toolbarHelper.hideProgress();
   }
 
@@ -262,125 +258,92 @@ public class Ci40Fragment extends BaseFragment {
     });
   }
 
-  private static class IsProvisionedCallback implements ApiCallback<JsonRPCApiService, Boolean> {
 
-    private final WeakReference<Ci40Fragment> fragment;
+  private static class IsProvisionedCallback extends AbstractCallback<Ci40Fragment, JsonRPCApiService, Boolean> {
 
-    public IsProvisionedCallback(Ci40Fragment fragment) {
-      this.fragment = new WeakReference<>(fragment);
+    public IsProvisionedCallback(Ci40Fragment fragment, Handler mainHandler) {
+      super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(JsonRPCApiService service, Boolean result) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.onIsProvisioned(result);
-      }
+    protected void onSuccess(Ci40Fragment fragment, JsonRPCApiService service, Boolean result) {
+      fragment.onIsProvisioned(result);
     }
 
     @Override
-    public void onFailure(JsonRPCApiService service, Throwable t) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.onIsProvisionedFailure(t);
-      }
+    protected void onFailure(Ci40Fragment fragment, JsonRPCApiService service, Throwable t) {
+      fragment.onIsProvisionedFailure(t);
     }
   }
 
+  private static class JsonRpcCallback extends AbstractCallback<Ci40Fragment, JsonRPCApiService,String> {
 
-  private static class JsonRpcCallback implements ApiCallback<JsonRPCApiService,String> {
-
-    private final WeakReference<Ci40Fragment> fragment;
-
-    public JsonRpcCallback(Ci40Fragment fragment) {
-      this.fragment = new WeakReference<>(fragment);
+    public JsonRpcCallback(Ci40Fragment fragment, Handler mainHandler) {
+      super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(JsonRPCApiService service, String ipAddress) {
+    public void onSuccess(Ci40Fragment fragment, JsonRPCApiService service, String ipAddress) {
 
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyOnboardingSuccess(ipAddress);
-      }
+      fragment.notifyOnboardingSuccess(ipAddress);
     }
 
     @Override
-    public void onFailure(JsonRPCApiService service, Throwable t) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyOnboardingFailure(t);
-      }
+    public void onFailure(Ci40Fragment fragment, JsonRPCApiService service, Throwable t) {
+
+      fragment.notifyOnboardingFailure(t);
     }
   }
 
-  static class RemoveConfigurationCallback implements ApiCallback<JsonRPCApiService,Boolean> {
+  static class RemoveConfigurationCallback extends AbstractCallback<Ci40Fragment, JsonRPCApiService, Boolean> {
 
-    private final WeakReference<Ci40Fragment> fragment;
-
-    public RemoveConfigurationCallback(Ci40Fragment fragment) {
-      super();
-      this.fragment = new WeakReference<>(fragment);
+    public RemoveConfigurationCallback(Ci40Fragment fragment, Handler mainHandler) {
+      super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(JsonRPCApiService service, Boolean result) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyRemoveConfigurationFinished(result);
-      }
+    public void onSuccess(Ci40Fragment fragment, JsonRPCApiService service, Boolean result) {
+
+      fragment.notifyRemoveConfigurationFinished(result);
     }
 
     @Override
-    public void onFailure(JsonRPCApiService service, Throwable t) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyRemoveConfigurationFailed(t);
-      }
+    public void onFailure(Ci40Fragment fragment, JsonRPCApiService service, Throwable t) {
+
+      fragment.notifyRemoveConfigurationFailed(t);
     }
   }
 
-  static class BoardDataCallback implements ApiCallback<JsonRPCApiService,RpcInfo> {
+  static class BoardDataCallback extends AbstractCallback<Ci40Fragment, JsonRPCApiService,RpcInfo> {
 
-    private final WeakReference<Ci40Fragment> fragment;
-
-    public BoardDataCallback(Ci40Fragment fragment) {
-      super();
-      this.fragment = new WeakReference<>(fragment);
+    public BoardDataCallback(Ci40Fragment fragment, Handler mainHandler) {
+      super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(JsonRPCApiService service, RpcInfo result) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyDataReceived(result);
-      }
+    public void onSuccess(Ci40Fragment fragment, JsonRPCApiService service, RpcInfo result) {
+
+      fragment.notifyDataReceived(result);
     }
 
     @Override
-    public void onFailure(JsonRPCApiService service, Throwable t) {
-      Ci40Fragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyBoardDataFailed(t);
-      }
+    public void onFailure(Ci40Fragment fragment, JsonRPCApiService service, Throwable t) {
+
+      fragment.notifyBoardDataFailed(t);
     }
   }
 
   private void notifyDataReceived(final RpcInfo result) {
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        if (result == null) {
-          return;
-        }
-        host.setText(String.format("[%s]", (result.getHost() != null) ? result.getHost() : UNKNOWN));
-        final Wireless w = result.getWireless();
-        if (w != null) {
-          ssid.setText(String.format("[%s]", (w.getSsid() != null) ? w.getSsid() : UNKNOWN));
-          mac.setText(String.format("[%s]", (w.getMacaddr() != null) ? w.getMacaddr() : UNKNOWN));
-        }
-      }
-    });
+    if (result == null) {
+      return;
+    }
+
+    host.setText(String.format("[%s]", (result.getHost() != null) ? result.getHost() : UNKNOWN));
+    final Wireless w = result.getWireless();
+    if (w != null) {
+      ssid.setText(String.format("[%s]", (w.getSsid() != null) ? w.getSsid() : UNKNOWN));
+      mac.setText(String.format("[%s]", (w.getMacaddr() != null) ? w.getMacaddr() : UNKNOWN));
+    }
   }
 
   private void notifyBoardDataFailed(final Throwable t) {
@@ -406,13 +369,9 @@ public class Ci40Fragment extends BaseFragment {
   }
 
   private void notifyOperationFinished(final String message) {
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        toolbarHelper.hideProgress();
-        setButtonsEnabled(true);
-        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-      }
-    });
+
+    toolbarHelper.hideProgress();
+    setButtonsEnabled(true);
+    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
   }
 }

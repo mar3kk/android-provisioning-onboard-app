@@ -61,7 +61,6 @@ import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerApiService;
 import com.imgtec.creator.sniffles.data.api.pojo.AccessKey;
 import com.imgtec.creator.sniffles.data.api.pojo.OauthToken;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
-import com.imgtec.creator.sniffles.presentation.MainActivity;
 import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.views.ProgressButton;
 import com.imgtec.di.HasComponent;
@@ -97,6 +96,7 @@ public class LoginFragment extends BaseFragment {
   @Inject Preferences prefs;
   @Inject AccountServerApiService accountService;
   @Inject DeviceServerApiService deviceService;
+  @Inject @Named("Main") Handler mainHandler;
 
   final Logger logger = LoggerFactory.getLogger(getClass());
   LoginState state = LoginState.NONE;
@@ -154,7 +154,7 @@ public class LoginFragment extends BaseFragment {
     if (rememberMe && state == LoginState.NONE) {
       final String token = prefs.getRefreshToken();
       if (!token.isEmpty()) {
-        deviceService.login(token, new DeviceServerLoginCallback(this));
+        deviceService.login(token, new DeviceServerLoginCallback(this, mainHandler));
         showProgress(getActivity().getString(R.string.logging_in));
       }
     }
@@ -221,7 +221,7 @@ public class LoginFragment extends BaseFragment {
 
   private void notifyAccountLoginSuccessful(String key, String secret) {
     prefs.saveAccessKeys(key, secret);
-    deviceService.login(key, secret, rememberMe, new DeviceServerLoginCallback(this));
+    deviceService.login(key, secret, rememberMe, new DeviceServerLoginCallback(this, mainHandler));
   }
 
   private void showToast(final String msg, final int duration) {
@@ -312,45 +312,26 @@ public class LoginFragment extends BaseFragment {
     }
   }
 
-  static class DeviceServerLoginCallback implements ApiCallback<DeviceServerApiService,OauthToken> {
+  static class DeviceServerLoginCallback extends AbstractCallback<LoginFragment, DeviceServerApiService,OauthToken> {
 
     final Logger logger = LoggerFactory.getLogger(DeviceServerLoginCallback.class);
-    final WeakReference<LoginFragment> fragment;
 
 
-    public DeviceServerLoginCallback(LoginFragment fragment) {
-      super();
-      this.fragment = new WeakReference<>(fragment);
+
+    public DeviceServerLoginCallback(LoginFragment fragment, Handler mainHandler) {
+      super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(DeviceServerApiService service, OauthToken result) {
+    public void onSuccess(LoginFragment fragment, DeviceServerApiService service, OauthToken result) {
 
-      final LoginFragment f = fragment.get();
-      if (f != null && f.getActivity() != null) {
-        f.handler.post(new Runnable() {
-          @Override
-          public void run() {
-            f.finishRequest();
-          }
-        });
-      }
-      else {
-        logger.warn("DS login successful, but activity is null! Skipping.");
-      }
+      fragment.finishRequest();
     }
 
     @Override
-    public void onFailure(DeviceServerApiService service, final Throwable t) {
-      final LoginFragment f = fragment.get();
-      if (f != null && f.getActivity() != null) {
-        f.getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            f.requestFailed("Log in to device server failed! ", t);
-          }
-        });
-      }
+    public void onFailure(LoginFragment fragment, DeviceServerApiService service, final Throwable t) {
+
+      fragment.requestFailed("Log in to device server failed! ", t);
     }
   }
 }
