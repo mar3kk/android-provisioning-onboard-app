@@ -36,6 +36,7 @@ import android.os.Handler;
 
 import com.imgtec.creator.sniffles.data.DataModule;
 import com.imgtec.creator.sniffles.data.NsdService;
+import com.imgtec.creator.sniffles.data.SecurePreferences;
 import com.imgtec.creator.sniffles.data.api.ApiModule;
 import com.imgtec.creator.sniffles.data.api.accountserver.AccountServerApiService;
 import com.imgtec.creator.sniffles.data.api.accountserver.AccountServerModule;
@@ -80,6 +81,7 @@ public interface ApplicationComponent {
   App inject(App app);
 
   SharedPreferences getSharedPreferences();
+  SecurePreferences getSecurePreferences();
 
   @Named("Main") Handler getHandler();
 

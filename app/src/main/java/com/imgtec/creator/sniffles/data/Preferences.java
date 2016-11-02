@@ -31,8 +31,6 @@
 
 package com.imgtec.creator.sniffles.data;
 
-import android.content.SharedPreferences;
-
 import javax.inject.Inject;
 
 /**
@@ -58,70 +56,67 @@ public class Preferences {
   private static final String KEEP_ME_LOGGED_IN = "keep_me_logged_in";
   private static final boolean DEFAULT_KEEP_ME_LOGGED_IN = false;
 
-  private final SharedPreferences sharedPreferences;
+  private final SecurePreferences preferences;
 
   @Inject
-  Preferences(SharedPreferences prefs) {
-    this.sharedPreferences = prefs;
+  Preferences(SecurePreferences prefs) {
+    this.preferences = prefs;
   }
 
-  public UserData getUserData() {
-    final String username = sharedPreferences.getString(USERNAME, DEFAULT_USERNAME);
-    final String email = sharedPreferences.getString(EMAIL, DEFAULT_EMAIL);
-    return new UserData(username, email);
+  public synchronized UserData getUserData() {
+    final String username = preferences.getString(USERNAME);
+    final String email = preferences.getString(EMAIL);
+    return new UserData(username == null ? DEFAULT_USERNAME : username,
+                        email == null ? DEFAULT_EMAIL: email);
   }
 
-  public void setUserData(final UserData userdata) {
+  public synchronized void setUserData(final UserData userdata) {
     setUserData(userdata.getUsername(), userdata.getEmail());
   }
 
-  public void resetUserData() {
+  public synchronized void resetUserData() {
     setUserData("", "");
   }
 
   private void setUserData(String username, String email) {
-    final SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putString(USERNAME, username);
-    editor.putString(EMAIL, email);
-    editor.commit();
+    preferences.put(USERNAME, username);
+    preferences.put(EMAIL, email);
   }
 
-  public void setRefreshToken(String refreshToken) {
-    final SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putString(OAUTH_REFRESH_TOKEN, refreshToken);
-    editor.commit();
+  public synchronized void setRefreshToken(String refreshToken) {
+    preferences.put(OAUTH_REFRESH_TOKEN, refreshToken);
   }
 
-  public String getRefreshToken() {
-    return sharedPreferences.getString(OAUTH_REFRESH_TOKEN, DEFAULT_OAUTH_REFRESH_TOKEN);
+  public synchronized String getRefreshToken() {
+    final String token = preferences.getString(OAUTH_REFRESH_TOKEN);
+    return (token == null) ? DEFAULT_OAUTH_REFRESH_TOKEN :  token;
   }
 
-  public void resetRefreshToken() {
+  public synchronized void resetRefreshToken() {
     setRefreshToken("");
   }
 
-  public boolean getKeepMeLoggedIn() {
-    return sharedPreferences.getBoolean(KEEP_ME_LOGGED_IN, DEFAULT_KEEP_ME_LOGGED_IN);
+  public synchronized boolean getKeepMeLoggedIn() {
+    final String loggedIn = preferences.getString(KEEP_ME_LOGGED_IN);
+    return (loggedIn == null) ? DEFAULT_KEEP_ME_LOGGED_IN : Boolean.parseBoolean(loggedIn);
   }
 
-  public void setKeepMeLoggedIn(boolean checked) {
-    final SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putBoolean(KEEP_ME_LOGGED_IN, checked);
-    editor.commit();
+  public synchronized void setKeepMeLoggedIn(boolean checked) {
+    preferences.put(KEEP_ME_LOGGED_IN, Boolean.toString(checked));
   }
 
-  public void saveAccessKeys(String key, String secret) {
-    final SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putString(AC_KEY, key);
-    editor.putString(AC_SECRET, secret);
-    editor.commit();
+  public synchronized void saveAccessKeys(String key, String secret) {
+    preferences.put(AC_KEY, key);
+    preferences.put(AC_SECRET, secret);
   }
 
   public String getKey() {
-    return sharedPreferences.getString(AC_KEY, DEFAULT_AC_KEY);
+    final String key = preferences.getString(AC_KEY);
+    return (key == null) ? DEFAULT_AC_KEY : key;
   }
 
   public String getSecret() {
-    return sharedPreferences.getString(AC_SECRET, DEFAULT_AC_SECRET);
+    final String secret = preferences.getString(AC_SECRET);
+    return (secret == null) ? DEFAULT_AC_SECRET : secret;
   }
 }

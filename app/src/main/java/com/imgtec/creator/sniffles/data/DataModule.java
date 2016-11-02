@@ -34,6 +34,7 @@ package com.imgtec.creator.sniffles.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 
 import com.imgtec.creator.sniffles.app.App;
@@ -60,8 +61,19 @@ public class DataModule {
     return application.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
   }
 
+  @Provides @PerApp @Named("SecureKey")
+  String provideSecureKey(App app) {
+    return Settings.Secure.getString(app.getContentResolver(), Settings.Secure.ANDROID_ID);
+  }
+
   @Provides @PerApp
-  Preferences providesPreferences(@NonNull final SharedPreferences prefs) {
+  SecurePreferences provideSecurePreferences(final App app, final SharedPreferences prefs,
+                                             @Named("SecureKey") String secureKey) {
+    return new SecurePreferences(app, prefs, secureKey, false);
+  }
+
+  @Provides @PerApp
+  Preferences providesPreferences(@NonNull final SecurePreferences prefs) {
     return new Preferences(prefs);
   }
 
