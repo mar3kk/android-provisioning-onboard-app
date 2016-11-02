@@ -186,7 +186,7 @@ public class ClientsFragment extends BaseFragment {
   }
 
   private void showRetryDialog() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogStyle);
     builder
         .setMessage(R.string.no_client_found)
         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

@@ -165,7 +165,7 @@ public class Ci40Fragment extends BaseFragment {
   @Override
   public void onResume() {
     super.onResume();
-    requestIfProvisioned();
+    requestInfo();
   }
 
   @Override
@@ -177,7 +177,7 @@ public class Ci40Fragment extends BaseFragment {
     super.onPause();
   }
 
-  private void requestIfProvisioned() {
+  private void requestInfo() {
     toolbarHelper.showProgress();
     jsonRpc.isConfigured(ipAddr, userName, password, new IsProvisionedCallback(this, mainHandler));
     jsonRpc.requestInfo(ipAddr, userName, password, new BoardDataCallback(this, mainHandler));
@@ -352,7 +352,7 @@ public class Ci40Fragment extends BaseFragment {
 
   private void notifyOnboardingSuccess(final String ipAddress) {
     notifyOperationFinished("Onboarding successful!");
-    requestIfProvisioned();
+    requestInfo();
   }
 
   private void notifyOnboardingFailure(final Throwable t) {
@@ -361,7 +361,7 @@ public class Ci40Fragment extends BaseFragment {
 
   private void notifyRemoveConfigurationFinished(Boolean result) {
     notifyOperationFinished("Configuration removed!");
-    requestIfProvisioned();
+    requestInfo();
   }
 
   private void notifyRemoveConfigurationFailed(Throwable t) {
