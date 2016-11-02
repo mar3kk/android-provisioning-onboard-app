@@ -54,6 +54,7 @@ import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.OnboardingFragment;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
+import com.imgtec.creator.sniffles.presentation.helpers.PermissionHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.di.HasComponent;
 
@@ -71,6 +72,7 @@ import butterknife.Unbinder;
 public class MainActivity extends BaseActivity implements HasComponent<ActivityComponent>,
     NavigationView.OnNavigationItemSelectedListener {
 
+  public static final int REQUEST_ACCESS_NETWORKS_STATE = 10;
   private ActivityComponent component;
 
   @BindView(R.id.app_bar) AppBarLayout appBar;
@@ -85,7 +87,7 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
   @Inject DrawerHelper drawerHelper;
   @Inject ToolbarHelper toolbarHelper;
   @Inject Preferences preferences;
-
+  @Inject PermissionHelper permissionHelper;
 
   ActionBarDrawerToggle toggle;
   Unbinder unbinder;

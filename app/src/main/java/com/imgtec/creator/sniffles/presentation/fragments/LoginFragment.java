@@ -35,6 +35,7 @@ package com.imgtec.creator.sniffles.presentation.fragments;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,6 +61,7 @@ import com.imgtec.creator.sniffles.data.api.accountserver.AccountServerApiServic
 import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerApiService;
 import com.imgtec.creator.sniffles.data.api.pojo.AccessKey;
 import com.imgtec.creator.sniffles.data.api.pojo.OauthToken;
+import com.imgtec.creator.sniffles.network.NetworkHelper;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
 import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.views.ProgressButton;
@@ -69,6 +71,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -97,6 +100,7 @@ public class LoginFragment extends BaseFragment {
   @Inject AccountServerApiService accountService;
   @Inject DeviceServerApiService deviceService;
   @Inject @Named("Main") Handler mainHandler;
+  @Inject NetworkHelper networkHelper;
 
   final Logger logger = LoggerFactory.getLogger(getClass());
   LoginState state = LoginState.NONE;
@@ -162,7 +166,17 @@ public class LoginFragment extends BaseFragment {
 
   @UiThread
   private void performLogin() {
-    accountService.loginOrSignup(getContext());
+    if (tryPickWifiNetwork()) {
+      accountService.loginOrSignup(getContext());
+    }
+  }
+
+  private boolean tryPickWifiNetwork() {
+    if (!networkHelper.isWifiConnected()) {
+      startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
+      return false;
+    }
+    return true;
   }
 
   @OnClick(R.id.keepLoggedIn)
@@ -207,7 +221,6 @@ public class LoginFragment extends BaseFragment {
     refreshLoginButton();
     hideProgress();
 
-    //TODO: load fragment responsible for showing clients from DS
     FragmentHelper.replaceFragmentAndClearBackStack(getActivity().getSupportFragmentManager(),
         ClientsFragment.newInstance());
   }

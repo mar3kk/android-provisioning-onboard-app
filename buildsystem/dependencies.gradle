@@ -52,7 +52,7 @@ ext {
     snifflesApplicationId = 'com.imgtec.creator.sniffles'
     snifflesTestApplicationId = 'com.imgtec.creator.sniffles.test'
     snifflesMinSdkVersion = 19
-    snifflesTargetSdkVersion = 24
+    snifflesTargetSdkVersion = 22
     snifflesVersionCode = 1
     snifflesVersionName = "1.0.0"
 

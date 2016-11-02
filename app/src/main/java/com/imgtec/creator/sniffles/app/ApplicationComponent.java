@@ -46,6 +46,8 @@ import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerModule;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCModule;
 import com.imgtec.creator.sniffles.data.api.oauth.OauthTokenWrapper;
+import com.imgtec.creator.sniffles.network.NetworkHelper;
+import com.imgtec.creator.sniffles.network.NetworkModule;
 import com.imgtec.di.PerApp;
 
 import javax.inject.Named;
@@ -57,6 +59,7 @@ import okhttp3.OkHttpClient;
 @Component(
     modules = {
         ApplicationModule.class,
+        NetworkModule.class,
         DataModule.class,
         ApiModule.class,
         AccountServerModule.class,
@@ -82,6 +85,8 @@ public interface ApplicationComponent {
 
   SharedPreferences getSharedPreferences();
   SecurePreferences getSecurePreferences();
+
+  NetworkHelper getNetworkHelper();
 
   @Named("Main") Handler getHandler();
 

@@ -38,6 +38,7 @@ import com.imgtec.creator.sniffles.presentation.fragments.ClientsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.OnboardingFragment;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
+import com.imgtec.creator.sniffles.presentation.helpers.PermissionHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.di.HasComponent;
 import com.imgtec.di.PerActivity;
@@ -73,6 +74,7 @@ public interface ActivityComponent {
   void inject(Ci40Fragment fragment);
   void inject(AboutFragment fragment);
 
+  PermissionHelper getPermimssionHelper();
   DrawerHelper getDrawerHelper();
   ToolbarHelper getToolbarHelper();
 }

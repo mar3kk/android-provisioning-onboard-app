@@ -31,15 +31,50 @@
 
 package com.imgtec.creator.sniffles.network;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
 
 /**
  *
  */
 public class NetworkHelper {
 
+  private final Context appContext;
+
   public NetworkHelper(Context appContext) {
+    this.appContext = appContext;
   }
 
-  //TODO: implement
+  public boolean isWifiConnected() {
+    NetworkInfo netInfo;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      netInfo = getWifiNetworkInfo();
+    } else {
+      netInfo = getNetworkInfo();
+    }
+
+    return netInfo != null && netInfo.isConnected() && netInfo.getType() == ConnectivityManager.TYPE_WIFI;
+  }
+
+  public NetworkInfo getNetworkInfo() {
+    final ConnectivityManager conMan = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+    return conMan.getActiveNetworkInfo();
+  }
+
+  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  public NetworkInfo getWifiNetworkInfo() {
+    final ConnectivityManager conMan = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+    for (Network network : conMan.getAllNetworks()) {
+      NetworkInfo networkInfo = conMan.getNetworkInfo(network);
+      if (networkInfo != null && conMan.getNetworkInfo(network).getType() == ConnectivityManager.TYPE_WIFI) {
+        return networkInfo;
+      }
+    }
+    return null;
+  }
+
 }

@@ -29,53 +29,9 @@
  *
  */
 
-package com.imgtec.creator.sniffles.presentation;
+package com.imgtec.creator.sniffles.presentation.helpers;
 
-import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
-import com.imgtec.creator.sniffles.presentation.helpers.PermissionHelper;
-import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
-import com.imgtec.di.PerActivity;
+public class PermissionHelper {
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dagger.Module;
-import dagger.Provides;
-
-/**
- *
- */
-@Module
-final class ActivityModule {
-
-  private final MainActivity activity;
-
-  public ActivityModule(MainActivity activity) {
-    this.activity = activity;
-  }
-
-  @Provides @PerActivity
-  Logger providesLogger() {
-    return LoggerFactory.getLogger(activity.getClass().getSimpleName());
-  }
-
-  @Provides
-  MainActivity provideActivity() {
-    return activity;
-  }
-
-  @Provides @PerActivity
-  DrawerHelper provideDrawerHelper(MainActivity activity) {
-    return new DrawerHelper(activity);
-  }
-
-  @Provides @PerActivity
-  ToolbarHelper provideToolbarHelper(MainActivity activity) {
-    return new ToolbarHelper(activity);
-  }
-
-  @Provides @PerActivity
-  PermissionHelper providePermissionHelper() {
-    return new PermissionHelper();
-  }
+  //TODO: implement
 }
