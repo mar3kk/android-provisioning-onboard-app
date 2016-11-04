@@ -1,0 +1,20 @@
+@startuml
+
+package "Mobile device" {
+    component [Mobile Application] as APP
+    component [Browser] as BR
+}
+cloud "" {
+component [Developer Account Service] as AS
+component [Identity provider] as IDP
+
+}
+[APP] -down-> [BR]: ((1))
+[BR] -up-> [APP]: ((4))
+[APP] -right-> [AS]: ((5))
+[AS] -left-> [APP]: ((6))
+
+[BR] -right-> [IDP]: ((2))
+[BR] <- [IDP]: ((3))
+
+@enduml
