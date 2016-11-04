@@ -33,32 +33,39 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.JsonRPCResponse;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
 
 import java.io.IOException;
 
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
-public class JsonRPCAuthRequest<T> {
+public class CreatorCallRequest<T> {
 
   private final String url;
-  private final RpcData auth;
+  private final String token;
+  private final RpcData data;
 
-  public JsonRPCAuthRequest(String ipAddr, RpcData auth) {
-    this.url = String.format("https://%s/cgi-bin/luci/rpc/auth", ipAddr);
-    this.auth = auth;
+  public CreatorCallRequest(String ipAddr, String token, RpcData data) {
+    this.url = String.format("https://%s/cgi-bin/luci/rpc/creator", ipAddr);
+    this.token = token;
+    this.data = data;
   }
 
   private Request prepareRequest() {
     final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+    HttpUrl httpUrl = HttpUrl.parse(url).newBuilder().addQueryParameter("auth",token).build();
     return new Request.Builder()
-        .url(url)
+        .url(httpUrl)
         .addHeader("Content-Type",  "application/json")
         .addHeader("Cache-Control", "no-cache")
-        .post(RequestBody.create(JSON, new GsonBuilder().create().toJson(auth)))
+        .post(RequestBody.create(JSON, new GsonBuilder().create().toJson(data)))
         .build();
   }
 
@@ -69,11 +76,18 @@ public class JsonRPCAuthRequest<T> {
       return (T) new GsonBuilder()
           .create()
           .fromJson(response.body().string(), returnType);
-    }
+  }
     throw new RuntimeException("Request failed with code:" + response.code());
   }
 
-  public String getUrl() {
-    return url;
+  public JsonRPCResponse<T> execute(OkHttpClient client, TypeToken<JsonRPCResponse<T>> typeToken) throws IOException {
+    Request request = prepareRequest();
+    okhttp3.Response response = client.newCall(request).execute();
+    if (response.isSuccessful()) {
+      return (JsonRPCResponse<T>) new GsonBuilder()
+          .create()
+          .fromJson(response.body().string(), typeToken.getType());
+    }
+    throw new RuntimeException("Request failed with code:" + response.code());
   }
 }

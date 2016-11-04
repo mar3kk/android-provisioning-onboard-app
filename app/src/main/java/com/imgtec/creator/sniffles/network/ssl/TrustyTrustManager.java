@@ -29,52 +29,28 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.jsonrpc;
+package com.imgtec.creator.sniffles.network.ssl;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.X509TrustManager;
 
 
-import com.google.gson.GsonBuilder;
-import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
+public class TrustyTrustManager implements X509TrustManager {
 
-import java.io.IOException;
+  @Override
+  public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
 
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-
-public class ExecSysCallRequest <T> {
-
-  private final String url;
-  private final String token;
-  private final RpcData data;
-
-  public ExecSysCallRequest(String ipAddr, String token, RpcData data) {
-    this.url = String.format("http://%s/cgi-bin/luci/rpc/sys", ipAddr);
-    this.token = token;
-    this.data = data;
   }
 
-  private Request prepareRequest() {
-    final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+  @Override
+  public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
 
-    HttpUrl httpUrl = HttpUrl.parse(url).newBuilder().addQueryParameter("auth",token).build();
-    return new Request.Builder()
-        .url(httpUrl)
-        .addHeader("Content-Type",  "application/json")
-        .addHeader("Cache-Control", "no-cache")
-        .post(RequestBody.create(JSON, new GsonBuilder().create().toJson(data)))
-        .build();
   }
 
-  public T execute(OkHttpClient client, Class returnType) throws IOException {
-    Request request = prepareRequest();
-    okhttp3.Response response = client.newCall(request).execute();
-    if (response.isSuccessful()) {
-      return (T) new GsonBuilder()
-          .create()
-          .fromJson(response.body().string(), returnType);
+  public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+    return new X509Certificate[]{};
   }
-    throw new RuntimeException("Request failed with code:" + response.code());
-  }
+
 }

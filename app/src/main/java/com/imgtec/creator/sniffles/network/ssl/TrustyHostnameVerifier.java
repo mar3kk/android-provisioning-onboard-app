@@ -29,51 +29,16 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.jsonrpc;
+package com.imgtec.creator.sniffles.network.ssl;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 
-import com.google.gson.GsonBuilder;
-import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
+public class TrustyHostnameVerifier implements HostnameVerifier {
 
-import java.io.IOException;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-
-public class JsonRPCAuthRequest<T> {
-
-  private final String url;
-  private final RpcData auth;
-
-  public JsonRPCAuthRequest(String ipAddr, RpcData auth) {
-    this.url = String.format("https://%s/cgi-bin/luci/rpc/auth", ipAddr);
-    this.auth = auth;
-  }
-
-  private Request prepareRequest() {
-    final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    return new Request.Builder()
-        .url(url)
-        .addHeader("Content-Type",  "application/json")
-        .addHeader("Cache-Control", "no-cache")
-        .post(RequestBody.create(JSON, new GsonBuilder().create().toJson(auth)))
-        .build();
-  }
-
-  public T execute(OkHttpClient client, Class returnType) throws IOException {
-    Request request = prepareRequest();
-    okhttp3.Response response = client.newCall(request).execute();
-    if (response.isSuccessful()) {
-      return (T) new GsonBuilder()
-          .create()
-          .fromJson(response.body().string(), returnType);
-    }
-    throw new RuntimeException("Request failed with code:" + response.code());
-  }
-
-  public String getUrl() {
-    return url;
+  @Override
+  public boolean verify(String hostname, SSLSession session) {
+    return true;
   }
 }
