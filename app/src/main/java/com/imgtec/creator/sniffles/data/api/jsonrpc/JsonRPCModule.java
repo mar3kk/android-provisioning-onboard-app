@@ -35,16 +35,33 @@ import android.content.Context;
 
 import com.imgtec.creator.sniffles.app.App;
 import com.imgtec.creator.sniffles.data.api.ApiModule;
+import com.imgtec.creator.sniffles.network.ssl.TrustyHostnameVerifier;
+import com.imgtec.creator.sniffles.network.ssl.TrustySSLSocketFactory;
+import com.imgtec.creator.sniffles.network.ssl.TrustyTrustManager;
 import com.imgtec.di.PerApp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 
 import javax.inject.Named;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.Cache;
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
+import okhttp3.TlsVersion;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 @Module(
@@ -54,6 +71,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
 )
 public class JsonRPCModule {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(JsonRPCModule.class);
+
 
   @Provides @PerApp @Named("JsonRPC")
   OkHttpClient provideOkHttpClient(App app, Cache cache) {
@@ -61,12 +80,31 @@ public class JsonRPCModule {
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
     loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-    OkHttpClient okHttpClient = new OkHttpClient
+    OkHttpClient.Builder builder = new OkHttpClient
         .Builder()
         .cache(cache)
-        .addInterceptor(loggingInterceptor)
+        .addInterceptor(loggingInterceptor);
+
+
+    TrustManager trustManager = new TrustyTrustManager();
+
+    ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+        .tlsVersions(TlsVersion.TLS_1_2)
+        .allEnabledCipherSuites()
         .build();
-    return okHttpClient;
+
+    try {
+      builder
+          .sslSocketFactory(new TrustySSLSocketFactory(trustManager), (X509TrustManager) trustManager);
+    } catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
+      LOGGER.error("Failed to create {}. App may not be able to communicate with Ci40 board", TrustySSLSocketFactory.class.getSimpleName(), e);
+    }
+    builder
+        .hostnameVerifier(new TrustyHostnameVerifier())
+        .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+        .connectionSpecs(Arrays.asList(cs))
+        .addInterceptor(loggingInterceptor);
+    return builder.build();
   }
 
 

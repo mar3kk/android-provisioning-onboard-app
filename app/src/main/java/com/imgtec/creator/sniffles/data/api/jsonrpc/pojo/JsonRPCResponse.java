@@ -29,51 +29,42 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.jsonrpc;
+package com.imgtec.creator.sniffles.data.api.jsonrpc.pojo;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 
-import com.google.gson.GsonBuilder;
-import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
+public class JsonRPCResponse<T> {
 
-import java.io.IOException;
+  int id;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+  @SerializedName("result")
+  @Expose
+  T result;
+  String error;
 
-public class JsonRPCAuthRequest<T> {
-
-  private final String url;
-  private final RpcData auth;
-
-  public JsonRPCAuthRequest(String ipAddr, RpcData auth) {
-    this.url = String.format("https://%s/cgi-bin/luci/rpc/auth", ipAddr);
-    this.auth = auth;
+  public int getId() {
+    return id;
   }
 
-  private Request prepareRequest() {
-    final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    return new Request.Builder()
-        .url(url)
-        .addHeader("Content-Type",  "application/json")
-        .addHeader("Cache-Control", "no-cache")
-        .post(RequestBody.create(JSON, new GsonBuilder().create().toJson(auth)))
-        .build();
+  public void setId(int id) {
+    this.id = id;
   }
 
-  public T execute(OkHttpClient client, Class returnType) throws IOException {
-    Request request = prepareRequest();
-    okhttp3.Response response = client.newCall(request).execute();
-    if (response.isSuccessful()) {
-      return (T) new GsonBuilder()
-          .create()
-          .fromJson(response.body().string(), returnType);
-    }
-    throw new RuntimeException("Request failed with code:" + response.code());
+  public T getResult() {
+    return result;
   }
 
-  public String getUrl() {
-    return url;
+  public void setResult(T result) {
+    this.result = result;
+  }
+
+  public String getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
   }
 }

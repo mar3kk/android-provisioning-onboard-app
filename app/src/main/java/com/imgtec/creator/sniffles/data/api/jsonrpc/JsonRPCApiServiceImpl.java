@@ -34,7 +34,9 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.JsonRPCResponse;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcData;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
 import com.imgtec.creator.sniffles.utils.Condition;
@@ -44,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -110,12 +113,8 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
-          final String params = String.format("%s %s",
-              "/usr/lib/lua/creator/rpc.lua",
-              "isProvisioned");
-
-          Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
-          callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
+          Map<Object, Object> m = performMethodCall("isProvisioned", null, id, ipAddr, token);
+          callback.onSuccess(JsonRPCApiServiceImpl.this, m.get("result") == null ? false : (Boolean) m.get("result"));
 
         } catch (Exception e) {
           logger.warn("JSON-RPC: calling isConfigured failed!", e);
@@ -140,21 +139,20 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
-          final String params = String.format("%s %s %s %s %s",
-              "/usr/lib/lua/creator/rpcOnBoarding.lua",
+          final List<String> params = Arrays.asList(
               "https://deviceserver.flowcloud.systems",
               clientName.isEmpty() ? "" : clientName,
               key,
               secret);
 
-          Map<String, String> m = performExecSysCall(params, id, ipAddress, token);
+          Map<Object, Object> m = performMethodCall("doOnboarding", params, id, ipAddress, token);
 
-          if (m.get("result").isEmpty()) {
+          if (m.get("result") == null) {
             throw new RuntimeException("Unknown error");
           }
           callback.onSuccess(JsonRPCApiServiceImpl.this, ipAddress);
         } catch (Exception e) {
-          logger.warn("JSON-RPC: syscall failed!");
+          logger.warn("JSON-RPC: creator rpc call failed!");
 
           callback.onFailure(JsonRPCApiServiceImpl.this, e);
         }
@@ -177,11 +175,8 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
-          final String params = String.format("%s",
-              "/usr/lib/lua/creator/rpcRemoveConfiguration.lua");
-
-          Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
-          callback.onSuccess(JsonRPCApiServiceImpl.this, Boolean.parseBoolean(m.get("result").trim()));
+          Map<Object, Object> m = performMethodCall("unProvision", null, id, ipAddr, token);
+          callback.onSuccess(JsonRPCApiServiceImpl.this, m.get("result") == null ? false : (Boolean) m.get("result"));
 
         } catch (Exception e) {
           logger.warn("JSON-RPC: calling isConfigured failed!", e);
@@ -206,12 +201,9 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
         Condition.checkArgument(callback != null, "Callback cannot be null");
 
         try {
-          final String params = String.format("%s %s",
-              "/usr/lib/lua/creator/rpc.lua", "getInfo");
+          JsonRPCResponse<RpcInfo> result = performMethodCall("boardInfo", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<RpcInfo>>(){});
 
-          Map<String, String> m = performExecSysCall(params, id, ipAddr, token);
-          RpcInfo data = new Gson().fromJson(m.get("result"), RpcInfo.class);
-          callback.onSuccess(JsonRPCApiServiceImpl.this, data);
+          callback.onSuccess(JsonRPCApiServiceImpl.this, result.getResult());
 
         } catch (Exception e) {
           logger.warn("JSON-RPC: calling isConfigured failed!", e);
@@ -245,15 +237,29 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
     throw new IllegalStateException("JSON-RPC: Authorization failed!");
   }
 
-  private Map<String, String> performExecSysCall(String params, long id, String ipAddress, String token)
+  private Map<Object, Object> performMethodCall(String method, List<String> params, long id, String ipAddress, String token)
       throws IOException {
 
     RpcData data = new RpcData();
-    data.setMethod("exec");
-    data.setParams(Arrays.asList(params));
+    data.setMethod(method);
+    if (params != null)
+      data.setParams(params);
     data.setId(id++);
 
-    ExecSysCallRequest sysCallRequest = new ExecSysCallRequest(ipAddress, token, data);
-    return (Map<String, String>) sysCallRequest.execute(client, Map.class);
+    CreatorCallRequest creatorCallRequest = new CreatorCallRequest(ipAddress, token, data);
+    return (Map<Object, Object>) creatorCallRequest.execute(client, Map.class);
+  }
+
+  private <T> JsonRPCResponse<T> performMethodCall(String method, List<String> params, long id, String ipAddress, String token, TypeToken<JsonRPCResponse<T>> typeToken)
+      throws IOException {
+
+    RpcData data = new RpcData();
+    data.setMethod(method);
+    if (params != null)
+      data.setParams(params);
+    data.setId(id++);
+
+    CreatorCallRequest creatorCallRequest = new CreatorCallRequest(ipAddress, token, data);
+    return  creatorCallRequest.execute(client, typeToken);
   }
 }

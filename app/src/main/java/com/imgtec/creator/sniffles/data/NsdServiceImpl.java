@@ -44,7 +44,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-
 public class NsdServiceImpl implements NsdService {
 
   private static final String SERVICE_TYPE = "_onboarding._tcp";
@@ -147,38 +146,38 @@ public class NsdServiceImpl implements NsdService {
     public void onServiceFound(NsdServiceInfo serviceInfo) {
       logger.debug("Service found: ServiceType {}", serviceInfo);
 
-      if (serviceInfo.getServiceName().contains("OpenWrt")) {
-        logger.debug("Resolving discovered services");
-        nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
-          @Override
-          public void onResolveFailed(final NsdServiceInfo serviceInfo, final int errorCode) {
-            mainHandler.post(new Runnable() {
-              @Override
-              public void run() {
 
-                logger.debug("Resolve failed: {}, {}", serviceInfo, errorCode);
-                for (DiscoveryServiceListener l: listeners) {
-                  l.onServiceLost(NsdServiceImpl.this, new ServiceInfo(serviceInfo), errorCode);
-                }
-              }
-            });
-          }
+      logger.debug("Resolving discovered services");
+      nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
+        @Override
+        public void onResolveFailed(final NsdServiceInfo serviceInfo, final int errorCode) {
+          mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
 
-          @Override
-          public void onServiceResolved(final NsdServiceInfo serviceInfo) {
-            mainHandler.post(new Runnable() {
-              @Override
-              public void run() {
-                logger.debug("Service resolved: {}", serviceInfo);
-                for (DiscoveryServiceListener l: listeners) {
-                  l.onServiceFound(NsdServiceImpl.this, new ServiceInfo(serviceInfo));
-                }
+              logger.debug("Resolve failed: {}, {}", serviceInfo, errorCode);
+              for (DiscoveryServiceListener l : listeners) {
+                l.onServiceLost(NsdServiceImpl.this, new ServiceInfo(serviceInfo), errorCode);
               }
-            });
-          }
-        });
-      }
+            }
+          });
+        }
+
+        @Override
+        public void onServiceResolved(final NsdServiceInfo serviceInfo) {
+          mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+              logger.debug("Service resolved: {}", serviceInfo);
+              for (DiscoveryServiceListener l : listeners) {
+                l.onServiceFound(NsdServiceImpl.this, new ServiceInfo(serviceInfo));
+              }
+            }
+          });
+        }
+      });
     }
+
 
     @Override
     public void onServiceLost(NsdServiceInfo serviceInfo) {
@@ -191,7 +190,7 @@ public class NsdServiceImpl implements NsdService {
       @Override
       public void run() {
 
-        for (DiscoveryServiceListener l: listeners) {
+        for (DiscoveryServiceListener l : listeners) {
           l.onDiscoveryFailed(NsdServiceImpl.this);
         }
       }
@@ -203,8 +202,8 @@ public class NsdServiceImpl implements NsdService {
       @Override
       public void run() {
 
-        for (DiscoveryServiceListener l: listeners) {
-          l.onDiscoveryStarted(NsdServiceImpl.this, serviceType );
+        for (DiscoveryServiceListener l : listeners) {
+          l.onDiscoveryStarted(NsdServiceImpl.this, serviceType);
         }
       }
     });
@@ -215,7 +214,7 @@ public class NsdServiceImpl implements NsdService {
       @Override
       public void run() {
 
-        for (DiscoveryServiceListener l: listeners) {
+        for (DiscoveryServiceListener l : listeners) {
           l.onDiscoveryFinished(NsdServiceImpl.this, serviceType);
         }
       }
