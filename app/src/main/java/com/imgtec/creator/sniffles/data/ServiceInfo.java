@@ -58,7 +58,7 @@ public class ServiceInfo {
     ServiceInfo that = (ServiceInfo) o;
 
     return info != null ?
-        info.getHost().getHostAddress().equals(that.info.getHost().getHostAddress()) : that.info == null;
+        info.getServiceName().equals(that.info.getServiceName()) : that.info == null;
 
   }
 

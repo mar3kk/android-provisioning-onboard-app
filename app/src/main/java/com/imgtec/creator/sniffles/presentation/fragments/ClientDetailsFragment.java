@@ -211,6 +211,9 @@ public class ClientDetailsFragment extends BaseFragment {
 
     @Override
     protected void onSuccess(ClientDetailsFragment fragment, DeviceServerApiService service, List<DeviceInfo> result) {
+      if (result.size() == 0) {
+        return;
+      }
       final DeviceInfo info = result.get(0);
       List<Pair<String, Object>> pairs = toPair(info);
 

@@ -158,8 +158,8 @@ public class LoginFragment extends BaseFragment {
     if (rememberMe && state == LoginState.NONE) {
       final String token = prefs.getRefreshToken();
       if (!token.isEmpty()) {
-        deviceService.login(token, new DeviceServerLoginCallback(this, mainHandler));
         showProgress(getActivity().getString(R.string.logging_in));
+        deviceService.login(token, new DeviceServerLoginCallback(this, mainHandler));
       }
     }
   }
