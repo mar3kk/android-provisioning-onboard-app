@@ -52,7 +52,7 @@ public class CreatorCallRequest<T> {
   private final RpcData data;
 
   public CreatorCallRequest(String ipAddr, String token, RpcData data) {
-    this.url = String.format("https://%s/cgi-bin/luci/rpc/creator", ipAddr);
+    this.url = String.format("https://%s/cgi-bin/luci/rpc/creator_onboarding", ipAddr);
     this.token = token;
     this.data = data;
   }

@@ -40,6 +40,10 @@ import java.util.List;
 
 public class RpcData {
 
+  @SerializedName("jsonrpc")
+  @Expose
+  private String jsonRpc;
+
   @SerializedName("method")
   @Expose
   private String method;
@@ -51,6 +55,10 @@ public class RpcData {
   @SerializedName("id")
   @Expose
   private Long id;
+
+  public RpcData() {
+    this.jsonRpc = "2.0";
+  }
 
   public String getMethod() {
     return method;
