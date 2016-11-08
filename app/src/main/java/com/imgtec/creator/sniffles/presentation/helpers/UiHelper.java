@@ -31,6 +31,7 @@
 
 package com.imgtec.creator.sniffles.presentation.helpers;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -46,6 +47,11 @@ public class UiHelper {
 
     InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+  }
 
+  public static ProgressDialog showProgressDialog(Context context, String title, String message, boolean cancelOnTouchOutside ) {
+    ProgressDialog progressDialog = ProgressDialog.show(context, title, message, true);
+    progressDialog.setCanceledOnTouchOutside(cancelOnTouchOutside);
+    return progressDialog;
   }
 }

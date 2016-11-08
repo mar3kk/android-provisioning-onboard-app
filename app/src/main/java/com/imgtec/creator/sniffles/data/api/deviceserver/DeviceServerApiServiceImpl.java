@@ -34,15 +34,22 @@ package com.imgtec.creator.sniffles.data.api.deviceserver;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.gson.reflect.TypeToken;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.oauth.OauthManager;
 import com.imgtec.creator.sniffles.data.api.pojo.Api;
 import com.imgtec.creator.sniffles.data.api.pojo.Client;
 import com.imgtec.creator.sniffles.data.api.pojo.Clients;
+import com.imgtec.creator.sniffles.data.api.pojo.DeviceInfo;
+import com.imgtec.creator.sniffles.data.api.pojo.Instances;
 import com.imgtec.creator.sniffles.data.api.pojo.OauthToken;
+import com.imgtec.creator.sniffles.data.api.pojo.ObjectType;
+import com.imgtec.creator.sniffles.data.api.pojo.ObjectTypes;
 import com.imgtec.creator.sniffles.data.api.requests.ClientsRequest;
 import com.imgtec.creator.sniffles.data.api.requests.GetRequest;
+import com.imgtec.creator.sniffles.data.api.requests.InstancesRequest;
+import com.imgtec.creator.sniffles.utils.Condition;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -159,5 +166,70 @@ public class DeviceServerApiServiceImpl implements DeviceServerApiService {
         }
       }
     });
+  }
+
+  @Override
+  public void requestClientDetails(final Client client,
+                                   final ApiCallback<DeviceServerApiService, List<DeviceInfo>> callback) {
+
+    executorService.execute(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Condition.checkArgument(client != null, "Client cannot be null");
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+          ObjectTypes result = getObjectTypes(client, new DeviceServerApiService.Filter<ObjectType>() {
+
+                @Override
+                public boolean accept(ObjectType filter) {
+                  return filter.getObjectTypeID().equals("3"); //IPSO
+                }
+              });
+
+          if (result.getItems().size() == 0) {
+            callback.onFailure(DeviceServerApiServiceImpl. this,
+                new RuntimeException("No ObjectType found matching filtering criteria."));
+          }
+
+          List<DeviceInfo> infos = new ArrayList<>();
+          for (ObjectType obj : result.getItems()) {  //should be one element
+            Instances<DeviceInfo> instances = getInstancesForObject(obj);
+            for (int i = 0; i < instances.getItems().size(); ++i) {
+              infos.add(instances.getItems().get(i));
+            }
+          }
+          callback.onSuccess(DeviceServerApiServiceImpl.this, infos);
+        }
+        catch (final Exception e) {
+          callback.onFailure(DeviceServerApiServiceImpl. this, e);
+        }
+      }
+    });
+  }
+
+  //package:
+
+  final ObjectTypes getObjectTypes(Client client, Filter<ObjectType> filter) throws IOException {
+
+    ObjectTypes objectTypes = new GetRequest<ObjectTypes>(client.getLinkByRel("objecttypes").getHref())
+        .execute(DeviceServerApiServiceImpl.this.client, ObjectTypes.class);
+
+    if (filter != null) {
+      List<ObjectType> list = new ArrayList<>();
+      for (ObjectType obj: objectTypes.getItems()) {
+        if (filter.accept(obj)) {
+          list.add(obj);
+        }
+      }
+      objectTypes.setItems(list);
+    }
+    return objectTypes;
+  }
+
+  Instances<DeviceInfo> getInstancesForObject(ObjectType obj) throws IOException {
+    Instances<DeviceInfo> instances = new InstancesRequest<DeviceInfo>(obj.getLinkByRel("instances").getHref())
+        .execute(client, new TypeToken<Instances<DeviceInfo>>(){});
+    return instances;
   }
 }

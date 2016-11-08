@@ -29,35 +29,37 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.deviceserver;
+package com.imgtec.creator.sniffles.data.api.pojo;
 
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
-import com.imgtec.creator.sniffles.data.api.pojo.Client;
-import com.imgtec.creator.sniffles.data.api.pojo.Clients;
-import com.imgtec.creator.sniffles.data.api.pojo.DeviceInfo;
-import com.imgtec.creator.sniffles.data.api.pojo.OauthToken;
 
-import java.io.IOException;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
-public interface DeviceServerApiService {
+public class Instances<T extends Hateoas> extends Hateoas {
 
-  void login(final String key, final String secret, boolean rememberMe,
-             ApiCallback<DeviceServerApiService, OauthToken> callback);
+    @SerializedName("PageInfo")
+    @Expose
+    private PageInfo pageInfo;
+    @SerializedName("Items")
+    @Expose
+    private List<T> items = new ArrayList<>();
 
-  void login(final String refreshToken, ApiCallback<DeviceServerApiService, OauthToken> callback);
+    public PageInfo getPageInfo() {
+        return pageInfo;
+    }
 
-  interface Filter<T> {
-    boolean accept(T filter);
-  }
+    public void setPageInfo(PageInfo pageInfo) {
+        this.pageInfo = pageInfo;
+    }
 
-  void requestClients(Filter<Client> filter, ApiCallback<DeviceServerApiService, Clients> callback);
+    public List<T> getItems() {
+        return items;
+    }
 
-  Clients getClients(Filter<Client> filter) throws IOException;
-
-  void requestClientDetails(Client client, ApiCallback<DeviceServerApiService, List<DeviceInfo>> callback);
-
+    public void setItems(List<T> items) {
+        this.items = items;
+    }
 }

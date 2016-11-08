@@ -46,6 +46,8 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">?attr/colorPrimary</item>
         <item name="actionModeStyle">@style/ActionModeStyle</item>
+
+        <item name="alertDialogTheme">@style/AlertDialogStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -150,5 +152,4 @@
         <!-- Used for the background -->
         <item name="android:background">@android:color/white</item>
     </style>
-
 </resources>

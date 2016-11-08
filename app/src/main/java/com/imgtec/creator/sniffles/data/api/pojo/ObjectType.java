@@ -29,35 +29,23 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.deviceserver;
+package com.imgtec.creator.sniffles.data.api.pojo;
 
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
-import com.imgtec.creator.sniffles.data.api.pojo.Client;
-import com.imgtec.creator.sniffles.data.api.pojo.Clients;
-import com.imgtec.creator.sniffles.data.api.pojo.DeviceInfo;
-import com.imgtec.creator.sniffles.data.api.pojo.OauthToken;
 
-import java.io.IOException;
-import java.util.List;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-/**
- *
- */
-public interface DeviceServerApiService {
+public class ObjectType extends Hateoas {
 
-  void login(final String key, final String secret, boolean rememberMe,
-             ApiCallback<DeviceServerApiService, OauthToken> callback);
+    @SerializedName("ObjectTypeID")
+    @Expose
+    private String objectTypeID;
 
-  void login(final String refreshToken, ApiCallback<DeviceServerApiService, OauthToken> callback);
+    public String getObjectTypeID() {
+        return objectTypeID;
+    }
 
-  interface Filter<T> {
-    boolean accept(T filter);
-  }
-
-  void requestClients(Filter<Client> filter, ApiCallback<DeviceServerApiService, Clients> callback);
-
-  Clients getClients(Filter<Client> filter) throws IOException;
-
-  void requestClientDetails(Client client, ApiCallback<DeviceServerApiService, List<DeviceInfo>> callback);
-
+    public void setObjectTypeID(String objectTypeID) {
+        this.objectTypeID = objectTypeID;
+    }
 }

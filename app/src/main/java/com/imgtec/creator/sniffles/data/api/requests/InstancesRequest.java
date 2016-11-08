@@ -29,35 +29,36 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.deviceserver;
+package com.imgtec.creator.sniffles.data.api.requests;
 
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
-import com.imgtec.creator.sniffles.data.api.pojo.Client;
-import com.imgtec.creator.sniffles.data.api.pojo.Clients;
-import com.imgtec.creator.sniffles.data.api.pojo.DeviceInfo;
-import com.imgtec.creator.sniffles.data.api.pojo.OauthToken;
+import com.google.gson.reflect.TypeToken;
+import com.imgtec.creator.sniffles.data.api.ResponseHandler;
+import com.imgtec.creator.sniffles.data.api.pojo.Hateoas;
+import com.imgtec.creator.sniffles.data.api.pojo.Instances;
 
 import java.io.IOException;
-import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  *
  */
-public interface DeviceServerApiService {
+public class InstancesRequest<T extends Hateoas> extends BaseRequest<T> {
 
-  void login(final String key, final String secret, boolean rememberMe,
-             ApiCallback<DeviceServerApiService, OauthToken> callback);
-
-  void login(final String refreshToken, ApiCallback<DeviceServerApiService, OauthToken> callback);
-
-  interface Filter<T> {
-    boolean accept(T filter);
+  public InstancesRequest(String url) {
+    super(url);
   }
 
-  void requestClients(Filter<Client> filter, ApiCallback<DeviceServerApiService, Clients> callback);
+  @Override
+  public Request prepareRequest() {
+    return new Request.Builder().url(getUrl()).get().build();
+  }
 
-  Clients getClients(Filter<Client> filter) throws IOException;
-
-  void requestClientDetails(Client client, ApiCallback<DeviceServerApiService, List<DeviceInfo>> callback);
-
+  public Instances<T> execute(OkHttpClient client, TypeToken<Instances<T>> typeToken)
+      throws IOException {
+    Request request = prepareRequest();
+    okhttp3.Response response = client.newCall(request).execute();
+    return new ResponseHandler().handle(request, response, typeToken);
+  }
 }

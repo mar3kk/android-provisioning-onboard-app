@@ -56,6 +56,7 @@ import com.imgtec.creator.sniffles.data.api.pojo.Clients;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
 import com.imgtec.creator.sniffles.presentation.adapters.ClientsAdapter;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
+import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
 import com.imgtec.creator.sniffles.presentation.views.HorizontalItemDecoration;
 import com.imgtec.creator.sniffles.presentation.views.RecyclerItemClickSupport;
@@ -144,7 +145,8 @@ public class ClientsFragment extends BaseFragment {
           @Override
           public void onItemClicked(RecyclerView recyclerView, int position, View view) {
             Client client = adapter.getItem(position);
-            //TODO: implement detailed view
+            ClientDetailsFragment fragment = ClientDetailsFragment.newInstance(client);
+            FragmentHelper.replaceFragment(getActivity().getSupportFragmentManager(),  fragment);
           }
         });
 

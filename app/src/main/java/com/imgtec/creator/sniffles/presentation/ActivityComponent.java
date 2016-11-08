@@ -33,6 +33,7 @@ package com.imgtec.creator.sniffles.presentation;
 
 import com.imgtec.creator.sniffles.app.ApplicationComponent;
 import com.imgtec.creator.sniffles.presentation.fragments.AboutFragment;
+import com.imgtec.creator.sniffles.presentation.fragments.ClientDetailsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.Ci40Fragment;
 import com.imgtec.creator.sniffles.presentation.fragments.ClientsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
@@ -54,6 +55,8 @@ import dagger.Component;
 )
 public interface ActivityComponent {
 
+
+
   class Initializer {
 
     private Initializer() {}
@@ -70,6 +73,7 @@ public interface ActivityComponent {
   void inject(MainActivity activity);
   void inject(LoginFragment fragment);
   void inject(ClientsFragment fragment);
+  void inject(ClientDetailsFragment fragment);
   void inject(OnboardingFragment fragment);
   void inject(Ci40Fragment fragment);
   void inject(AboutFragment fragment);
