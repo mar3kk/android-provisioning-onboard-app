@@ -1,57 +1,61 @@
-# CI 40 onboarding app
+# Ci40 Onboarding Application for Android
 ![](docs/img.png)
 ---
- 'Onboarding-app' is a mobile Android application that helps user to 
+
+ The 'Onboarding-app' is a mobile Android application that helps users to 
  easily perform Ci40 onboarding and clickers provisioning. 
  
- It is a part of a bigger system consisting of CI 40 tooling (provisioning demon & scripts),
- constraint devices (running provisioning library), Device Server (DS)
+ It is one component within a bigger system consisting of Ci40 tooling (provisioning demon & scripts),
+ constrained devices (running provisioning library) and Device Server (DS)
  as illustrated in the following diagram:
   
  ![](docs/components.png) 
  
- What it really means is that using secure communication channel
- mobile client is able to prepare Ci40 and constraint devices to interact with the Device Server.
+ What this really means is that using a secure communication channel, the mobile client is able to prepare Ci40 and constrained devices to interact with the Device Server.
  
- To achieve that mobile client have to: 
+## Android onboarding application responsibilities
  
-  * provide Ci40 configuration necessary to download and store certificate from Device Server,    
-  * introduce Ci40 with user-friendly client name (board will be visible on developer console with that name), 
-  * provide configuration for 'awa client'
+ For Ci40, the mobile application must:
+
+  * provide the configuration necessary to download and store certificates from Device Server,    
+  * introduce Ci40 with a user-friendly client name (the board will be visible on the developer console with that name), 
+  * provide configuration for the Awa client
   
-  and this is known as a "Ci40 onboardin process". 
+  This is known as the "Ci40 onboarding process".
   
-  For constraint devices "provisioning process" requires mobile client to:
+  For constrained devices the "provisioning process" requires the mobile client to:
    
   * provide network configuration
-  * and configuration to obtain PSK from the Device Server   
+  * provide configuration to obtain a PSK from the Device Server   
   
 
-# Components responsibilities
+## Other component responsibilities
  
+ These components are all required by the system as a whole, and gaining some understanding of them will help to clarify the role of the mobile application.
+
  * provisioning demon:
     - application that runs on Ci40 board,
-    - ensures secure connection between constraint devices,
-    - exchange crypto keys and many more
+    - ensures secure connection between constrained devices,
+    - exchanges crypto keys and much more
     - can be found [here] (https://gitlab.flowcloud.systems/creator/ci40-provisioning-daemon)
  
  * scripts:
-    - provides entry point for communication provisioning demon and LUCI web scripts
+    - provides entry point for communication provisioning demon and LuCI web scripts
     - exposes utility API available via JSON-RPC and uBus
     - can be found [here] (https://gitlab.flowcloud.systems/creator/ci40-onboarding-scripts)
  
  * provisioning library:
-    - delivers PSK and other configurations data to provision constraint device 
+    - delivers PSK and other configuration data to provision constrained devices
     - can be found [here](https://gitlab.flowcloud.systems/creator/contiki-provisioning-library) 
  
  * device server:
     - LWM2M management server,
-    - exposes secured REST API/HTTPs used by the mobile app  
+    - exposes secured REST API/HTTPs used by the mobile app
  
-# Communication with Device Server via REST API
+## Communication with Device Server via REST API
  
- Communication with Device Server requires user to be authenticated.
- To acquire access keys, that will be used to obtain DS access token, 
+ Communication with Device Server requires authentication with a user account.
+ To acquire access keys (that will be used to obtain a Device Server access token),
  the user has to login first with their CreatorID (points (1)-(4) on the following diagram).
  Having 'token_id' from the Identity Provider (IP) client now may obtain access keys (key and secret)
  performing simple HTTP request (points (5) and (6)) to the 'Developer Account Service.
@@ -75,43 +79,43 @@
 
 ## Dependencies
   
- To run properly following list of dependencies must installed on CI40:
+ To run properly following list of dependencies must installed on Ci40:
     
  ```curl luci-mod-rpc libubox-lua avahi luci-ssl uhttpd-mod-tls```
  
 ## Prerequisites
- - Developer has account on creator portal
+ - Developer has account on the Device Server (you can make one on the [Developer Console](http://console.creatordev.io))
  - Ci40 has configured network connection
  - Ci40 is running mDNS, 
  - mDNS responds to search _onboarding._tcp service type
 
 ## Resolving Ci40 IP address
  
- Mobile application is designed to work in local area network. To obtain 
- Ci40 IP address mobile client uses Multicast DNS service discovery.
- Following diagram shows this procedure: 
+ The mobile application is designed to work in the local area network. To obtain 
+ the Ci40 IP address the mobile client uses Multicast DNS service discovery.
+ the following diagram shows this procedure: 
  
  ![](docs/resolve_ip.png) 
  
 ## Ci40 configuration
   
- Having board IP address resolved mobile client can send proper configuration 
+ The mobile client can now send configuration data
  to the Ci40. This can be achieved via LuCI through JSON-RPC API. 
- Following sequence diagram shows this procedure. 
+ The following sequence diagram shows this procedure. 
  
  ![](docs/onboarding.png)
   
- If 'onboarding' operation succeeds new device should be visible on the 
- developer console and on clients list in the application.
+ If the 'onboarding' operation succeeds a new device should be visible on the 
+ Developer Console and on the clients list in the application.
  
 ## RPC API
-  Authorization and onbarding are two remote procedures that can be executed.
+  Authorization and onboarding are two remote procedures that can be executed.
   In addition to these there are other methods that can:
   - remove configuration
-  - get basic info about luci configuration
+  - get basic info about LuCI configuration
   - check if Ci40 is configured
   
-# Constraint devices provisioning
+# Constrained device provisioning
   
   To be done...
   
