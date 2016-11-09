@@ -1,0 +1,14 @@
+title Components
+
+rectangle "ci40 platform" {
+    [JSON-RPC] <-> [Onboarding scripts]
+    [Provision Daemon] <-> [Onboarding scripts]:UBus
+}
+
+
+[Constraint device] <..> [Provision Daemon]:6lowpan
+[Onboarding scripts] <-> [Device Server]:HTTP
+[Mobile Application] <-> [JSON-RPC]:HTTP
+[Mobile Application] <-> [Device Server]:HTTP
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+
+title "Obtaining Ci40 IP address"
+
+participant "Fragment" as f
+participant "NsdService" as nsd
+participant "NsdManager" as nsdMgr
+participant System
+
+note over nsd, nsdMgr
+Network service discovery components
+end note
+
+
+f -> nsd: discoverServices
+
+nsd --> nsdMgr: discoverServices(_onboarding._tcp)
+note right
+Service discovery will be automatically stopped after 10s or by the user
+end note
+nsdMgr --> System
+nsdMgr <-- System
+nsd <-- nsdMgr: onServiceFound(serviceInfo)
+nsd --> nsdMgr: resolveService(serviceInfo)
+nsdMgr --> System
+nsdMgr <-- System
+nsd <-- nsdMgr: onServiceResolved(serviceInfo)
+
+f <-- nsd: onServiceFound(info)
+note right
+info contains resolved IP address
+end note
+
+@enduml
