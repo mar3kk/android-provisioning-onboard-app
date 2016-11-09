@@ -3,15 +3,15 @@
 ---
 
  The 'Onboarding-app' is a mobile Android application that helps users to 
- easily perform Ci40 onboarding and clickers provisioning. 
+ easily perform Ci40 onboarding and clickers provisioning. This gets Ci40 and constrained devices onto a network and registered with Device Server.
  
- It is one component within a bigger system consisting of Ci40 tooling (provisioning demon & scripts),
+ This Android application is one component within a bigger system consisting of Ci40 tooling (provisioning demon & scripts),
  constrained devices (running provisioning library) and Device Server (DS)
  as illustrated in the following diagram:
   
  ![](docs/components.png) 
  
- What this really means is that using a secure communication channel, the mobile client is able to prepare Ci40 and constrained devices to interact with the Device Server.
+ What this means is that using a secure communication channel, the mobile client is able to prepare Ci40 and constrained devices to interact with the Device Server.
  
 ## Android onboarding application responsibilities
  
