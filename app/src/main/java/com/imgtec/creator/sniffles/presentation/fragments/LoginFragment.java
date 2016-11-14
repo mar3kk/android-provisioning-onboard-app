@@ -56,7 +56,6 @@ import android.widget.Toast;
 import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.UserData;
-import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.accountserver.AccountServerApiService;
 import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerApiService;
 import com.imgtec.creator.sniffles.data.api.pojo.AccessKey;
@@ -69,9 +68,6 @@ import com.imgtec.di.HasComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.ref.WeakReference;
-import java.net.UnknownHostException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -192,7 +188,7 @@ public class LoginFragment extends BaseFragment {
   }
 
   public void handleRedirection(String token) {
-    accountService.loginWithIdToken(token, new AccountServerLoginCallback(this, prefs));
+    accountService.loginWithIdToken(token, new AccountServerLoginCallback(this, mainHandler, prefs));
     updateLoginState(LoginState.IN_PROGRESS);
     refreshLoginButton();
   }
@@ -216,10 +212,10 @@ public class LoginFragment extends BaseFragment {
 
   private void finishRequest() {
 
+    hideProgress();
     updateLoginState(LoginState.COMPLETED);
     updateDrawerHeader();
     refreshLoginButton();
-    hideProgress();
 
     FragmentHelper.replaceFragmentAndClearBackStack(getActivity().getSupportFragmentManager(),
         ClientsFragment.newInstance());
@@ -249,28 +245,20 @@ public class LoginFragment extends BaseFragment {
   }
 
   void showProgress(final String message) {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if (getActivity() != null) {
-          progressDialog = ProgressDialog.show(getActivity(),
-              getActivity().getString(R.string.please_wait_with_dots), message, true);
-          progressDialog.setCanceledOnTouchOutside(false);
-        }
-      }
-    });
+
+    if (getActivity() != null) {
+      progressDialog = ProgressDialog.show(getActivity(),
+          getActivity().getString(R.string.please_wait_with_dots), message, true);
+      progressDialog.setCanceledOnTouchOutside(false);
+    }
   }
 
   void hideProgress() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if (progressDialog != null) {
-          progressDialog.dismiss();
-          progressDialog = null;
-        }
-      }
-    });
+
+    if (progressDialog != null) {
+      progressDialog.dismiss();
+      progressDialog = null;
+    }
   }
 
   private void updateLoginState(LoginState loginState) {
@@ -288,48 +276,32 @@ public class LoginFragment extends BaseFragment {
     showToast(msg + t.getMessage(), Toast.LENGTH_LONG);
   }
 
-  static class AccountServerLoginCallback implements ApiCallback<AccountServerApiService,AccessKey> {
+  static class AccountServerLoginCallback extends AbstractCallback<LoginFragment, AccountServerApiService,AccessKey> {
 
-    private final WeakReference<LoginFragment> fragment;
     private final Preferences preferences;
 
-    public AccountServerLoginCallback(LoginFragment fragment, Preferences prefs) {
-      super();
-      this.fragment = new WeakReference<>(fragment);
+    public AccountServerLoginCallback(LoginFragment fragment, Handler mainHandler, Preferences prefs) {
+      super(fragment, mainHandler);
       this.preferences = prefs;
     }
 
     @Override
-    public void onSuccess(final AccountServerApiService service, final AccessKey result) {
+    public void onSuccess(final LoginFragment fragment, final AccountServerApiService service, final AccessKey result) {
 
       preferences.setUserData(new UserData(result.getName(), "" ));
-
-      LoginFragment f = fragment.get();
-      if (f != null && f.isAdded()) {
-        f.notifyAccountLoginSuccessful(result.getKey(), result.getSecret());
-      }
+      fragment.notifyAccountLoginSuccessful(result.getKey(), result.getSecret());
     }
 
     @Override
-    public void onFailure(final AccountServerApiService service, final Throwable t) {
-      final LoginFragment f = fragment.get();
-      if (f != null && f.getActivity() != null) {
-        f.getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            f.requestFailed("Logging to account server failed! ", t);
-          }
-        });
+    public void onFailure(final LoginFragment fragment, final AccountServerApiService service, final Throwable t) {
 
-      }
+      fragment.requestFailed("Logging to account server failed! ", t);
     }
   }
 
   static class DeviceServerLoginCallback extends AbstractCallback<LoginFragment, DeviceServerApiService,OauthToken> {
 
     final Logger logger = LoggerFactory.getLogger(DeviceServerLoginCallback.class);
-
-
 
     public DeviceServerLoginCallback(LoginFragment fragment, Handler mainHandler) {
       super(fragment, mainHandler);
