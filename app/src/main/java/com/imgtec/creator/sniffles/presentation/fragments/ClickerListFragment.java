@@ -36,6 +36,8 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -152,6 +154,34 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
     ((HasComponent<ActivityComponent>) getActivity()).getComponent().inject(this);
   }
 
+  @Override
+  protected void setupToolbar() {
+    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+    if (actionBar == null) {
+      return;
+    }
+    actionBar.show();
+    actionBar.setTitle(R.string.ci_40);
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setHomeButtonEnabled(true);
+    actionBar.setShowHideAnimationEnabled(true);
+    setHasOptionsMenu(false);
+  }
+
+  @Override
+  public void setupDrawer() {
+    drawerHelper.getDrawerToggle().setDrawerIndicatorEnabled(false);
+    drawerHelper.getDrawerToggle().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+    drawerHelper.getDrawerToggle().setToolbarNavigationClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        getFragmentManager().popBackStack();
+        drawerHelper.getDrawerToggle().syncState();
+      }
+    });
+    drawerHelper.lockDrawer();
+  }
+
   private void showProgressDialog() {
     if (progressDialog != null) {
       if (progressDialog.isShowing()) {
@@ -206,6 +236,7 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
 
     @Override
     public void onSuccess(JsonRPCApiService service, final JsonRPCResponse<ProvisioningDaemonState> response) {
+
       mainHandler.post(new Runnable() {
         @Override
         public void run() {
@@ -329,7 +360,4 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
   private void showToast(String msg) {
     Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
   }
-
-
-
 }

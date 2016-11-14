@@ -73,9 +73,7 @@ public abstract class Ci40ListFragmentBase extends BaseFragment {
 
   final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Inject
-  @Named("Main")
-  Handler mainHandler;
+  @Inject @Named("Main") Handler mainHandler;
   @Inject Preferences prefs;
   @Inject NsdService nsdService;
   @Inject JsonRPCApiService jsonRpc;

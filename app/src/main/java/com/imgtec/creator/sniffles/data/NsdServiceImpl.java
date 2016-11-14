@@ -78,12 +78,17 @@ public class NsdServiceImpl implements NsdService {
 
   @Override
   public void discoverServices() {
-    synchronized (lock) {
-      if (!isDiscovering) {
-        isDiscovering = true;
-        nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-        scheduleStopDiscoveryTask();
+    try {
+      synchronized (lock) {
+        if (!isDiscovering) {
+          isDiscovering = true;
+          nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+          scheduleStopDiscoveryTask();
+        }
       }
+    }
+    catch (Exception e) {
+      logger.warn("Discover services failed!", e);
     }
   }
 

@@ -55,14 +55,10 @@ public class ProvisioningFragment extends Ci40ListFragmentBase {
     return fragment;
   }
 
-
-
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
   }
-
-
 
   @Override
   protected void setupToolbar() {
