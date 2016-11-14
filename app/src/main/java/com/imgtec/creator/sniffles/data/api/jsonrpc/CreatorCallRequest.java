@@ -51,8 +51,8 @@ public class CreatorCallRequest<T> {
   private final String token;
   private final RpcData data;
 
-  public CreatorCallRequest(String ipAddr, String token, RpcData data) {
-    this.url = String.format("https://%s/cgi-bin/luci/rpc/creator_onboarding", ipAddr);
+  public CreatorCallRequest(String ipAddr, String endpoint, String token, RpcData data) {
+    this.url = String.format("https://%s/cgi-bin/luci/rpc/%s", ipAddr, endpoint);
     this.token = token;
     this.data = data;
   }

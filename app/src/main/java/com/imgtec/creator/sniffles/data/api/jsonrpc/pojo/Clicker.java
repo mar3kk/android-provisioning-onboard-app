@@ -31,42 +31,57 @@
 
 package com.imgtec.creator.sniffles.data.api.jsonrpc.pojo;
 
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+public class Clicker {
 
-public class JsonRPCResponse<T> {
-
-  int id;
-
-  @SerializedName("result")
   @Expose
-  T result;
+  @SerializedName("id")
+  int clickerID;
 
-  @SerializedName("error")
-  JsonRPCError error;
+  @Expose
+  @SerializedName("name")
+  String clickerName;
 
-  public int getId() {
-    return id;
+  @Expose
+  @SerializedName("selected")
+  boolean selected;
+
+  @Expose
+  @SerializedName("inProvisionState")
+  boolean inProvisionState;
+
+  public int getClickerID() {
+    return clickerID;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public void setClickerID(int clickerID) {
+    this.clickerID = clickerID;
   }
 
-  public T getResult() {
-    return result;
+  public String getClickerName() {
+    return clickerName;
   }
 
-  public void setResult(T result) {
-    this.result = result;
+  public void setClickerName(String name) {
+    this.clickerName = name;
   }
 
-  public JsonRPCError getError() {
-    return error;
+  public boolean getSelected() {
+    return selected;
   }
 
-  public void setError(JsonRPCError error) {
-    this.error = error;
+  public void setSelected(boolean selected) {
+    this.selected = selected;
+  }
+
+  public boolean getInProvisionState() {
+    return inProvisionState;
+  }
+
+  public void setInProvisionState(boolean inProvisionState) {
+    this.inProvisionState = inProvisionState;
   }
 }

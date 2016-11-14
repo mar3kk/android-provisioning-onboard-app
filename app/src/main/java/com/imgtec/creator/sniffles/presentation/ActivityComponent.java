@@ -33,11 +33,13 @@ package com.imgtec.creator.sniffles.presentation;
 
 import com.imgtec.creator.sniffles.app.ApplicationComponent;
 import com.imgtec.creator.sniffles.presentation.fragments.AboutFragment;
+import com.imgtec.creator.sniffles.presentation.fragments.ClickerListFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.ClientDetailsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.Ci40Fragment;
 import com.imgtec.creator.sniffles.presentation.fragments.ClientsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.OnboardingFragment;
+import com.imgtec.creator.sniffles.presentation.fragments.ProvisioningFragment;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.PermissionHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.ToolbarHelper;
@@ -77,6 +79,8 @@ public interface ActivityComponent {
   void inject(OnboardingFragment fragment);
   void inject(Ci40Fragment fragment);
   void inject(AboutFragment fragment);
+  void inject(ProvisioningFragment fragment);
+  void inject(ClickerListFragment fragment);
 
   PermissionHelper getPermimssionHelper();
   DrawerHelper getDrawerHelper();

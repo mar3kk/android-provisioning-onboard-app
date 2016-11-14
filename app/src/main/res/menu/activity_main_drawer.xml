@@ -38,8 +38,10 @@
             android:icon="@drawable/ic_clients_24dp"/>
         <item
             android:id="@+id/onboarding"
-
             android:title="@string/onboarding"/>
+        <item
+            android:id="@+id/provisioning"
+            android:title="@string/provisioning"/>
         <item
             android:id="@+id/about"
             android:icon="@drawable/ic_info_outline_black_24dp"

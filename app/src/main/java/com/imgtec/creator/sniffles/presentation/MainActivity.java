@@ -52,6 +52,7 @@ import com.imgtec.creator.sniffles.presentation.fragments.AboutFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.ClientsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.OnboardingFragment;
+import com.imgtec.creator.sniffles.presentation.fragments.ProvisioningFragment;
 import com.imgtec.creator.sniffles.presentation.helpers.DrawerHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
 import com.imgtec.creator.sniffles.presentation.helpers.PermissionHelper;
@@ -203,6 +204,10 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
       }
       case R.id.onboarding: {
         showFragmentWithClearBackstack(OnboardingFragment.newInstance());
+        break;
+      }
+      case R.id.provisioning: {
+        showFragmentWithClearBackstack(ProvisioningFragment.newInstance());
         break;
       }
       case R.id.about: {

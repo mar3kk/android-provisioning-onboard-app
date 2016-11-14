@@ -79,5 +79,6 @@
     <string name="ssid">SSID</string>
     <string name="macaddr">MAC ADDRESS</string>
     <string name="host">Host</string>
+    <string name="provisioning">Provisioning</string>
 
 </resources>

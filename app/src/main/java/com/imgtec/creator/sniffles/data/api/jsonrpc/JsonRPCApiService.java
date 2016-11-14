@@ -32,6 +32,8 @@
 package com.imgtec.creator.sniffles.data.api.jsonrpc;
 
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.JsonRPCResponse;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.ProvisioningDaemonState;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
 
 /**
@@ -60,5 +62,15 @@ public interface JsonRPCApiService {
                            final ApiCallback<JsonRPCApiService, Boolean> callback);
 
   void requestInfo(String ipAddr, String userName, String password,
-                   final ApiCallback<JsonRPCApiService, RpcInfo> callback);
+                   final ApiCallback<JsonRPCApiService, JsonRPCResponse<RpcInfo>> callback);
+
+  void isProvisioningDaemonRunning(String ipAddr, String userName, String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback);
+
+  void getProvisioningDaemonState(String ipAddr, String userName, String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<ProvisioningDaemonState>> callback);
+
+  void startProvisioningDaemon(String ipAddr, String userName, String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback);
+
+  void selectClicker(String ipAddr, String userName, String password, int clickerID, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback);
+
+  void startProvisioning(String ipAddr, String username, String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback);
 }
