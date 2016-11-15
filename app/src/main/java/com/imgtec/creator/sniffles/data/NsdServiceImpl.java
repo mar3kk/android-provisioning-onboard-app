@@ -39,6 +39,7 @@ import android.os.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +59,8 @@ public class NsdServiceImpl implements NsdService {
   private CopyOnWriteArraySet<DiscoveryServiceListener> listeners = new CopyOnWriteArraySet<>();
 
   boolean isDiscovering = false;
-
+  Stack<NsdServiceInfo> stack;
+  Resolver resolver;
 
   NsdServiceImpl(Context appContext, ScheduledExecutorService executorService, Handler mainHandler) {
     this.nsdManager = (NsdManager) appContext.getSystemService(Context.NSD_SERVICE);
@@ -84,11 +86,26 @@ public class NsdServiceImpl implements NsdService {
           isDiscovering = true;
           nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
           scheduleStopDiscoveryTask();
+
+          stack = new Stack<>();
+
+          tryReleaseResolver();
+
+          resolver = new Resolver(stack, this);
+          resolver.start();
         }
       }
     }
     catch (Exception e) {
       logger.warn("Discover services failed!", e);
+    }
+  }
+
+  private void tryReleaseResolver() {
+
+    if (resolver != null) {
+      resolver.interrupt();
+      resolver = null;
     }
   }
 
@@ -114,6 +131,8 @@ public class NsdServiceImpl implements NsdService {
           isDiscovering = false;
           nsdManager.stopServiceDiscovery(discoveryListener);
         }
+
+        tryReleaseResolver();
       }
     } catch (Exception e) {
       logger.warn("Stop service discovery failed!", e);
@@ -150,39 +169,11 @@ public class NsdServiceImpl implements NsdService {
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
       logger.debug("Service found: ServiceType {}", serviceInfo);
-
-
-      logger.debug("Resolving discovered services");
-      nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
-        @Override
-        public void onResolveFailed(final NsdServiceInfo serviceInfo, final int errorCode) {
-          mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-
-              logger.debug("Resolve failed: {}, {}", serviceInfo, errorCode);
-              for (DiscoveryServiceListener l : listeners) {
-                l.onServiceLost(NsdServiceImpl.this, new ServiceInfo(serviceInfo), errorCode);
-              }
-            }
-          });
-        }
-
-        @Override
-        public void onServiceResolved(final NsdServiceInfo serviceInfo) {
-          mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-              logger.debug("Service resolved: {}", serviceInfo);
-              for (DiscoveryServiceListener l : listeners) {
-                l.onServiceFound(NsdServiceImpl.this, new ServiceInfo(serviceInfo));
-              }
-            }
-          });
-        }
-      });
+      synchronized (stack) {
+        stack.add(serviceInfo);
+        stack.notifyAll();
+      }
     }
-
 
     @Override
     public void onServiceLost(NsdServiceInfo serviceInfo) {
@@ -224,5 +215,80 @@ public class NsdServiceImpl implements NsdService {
         }
       }
     });
+  }
+
+  static class Resolver extends Thread {
+
+    final Logger logger = LoggerFactory.getLogger(getClass());
+    final Stack<NsdServiceInfo> stack;
+    final NsdServiceImpl service;
+
+    Resolver(Stack<NsdServiceInfo> stack, NsdServiceImpl service) {
+      super();
+      this.stack = stack;
+      this.service = service;
+      this.setName("DNS Resolver");
+    }
+
+    @Override
+    public void run() {
+      logger.info("Starting Resolver thread");
+      final boolean[] resolved = {false};
+
+      while (!isInterrupted()) {
+        try {
+          synchronized (stack) {
+            while (stack.size() == 0) {
+              stack.wait();
+            }
+          }
+
+          NsdServiceInfo serviceInfo = stack.pop();
+          synchronized (stack) {
+            resolved[0] = false;
+          }
+
+          logger.debug("Resolving discovered service: {}", serviceInfo);
+          service.nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
+            @Override
+            public void onResolveFailed(final NsdServiceInfo serviceInfo, final int errorCode) {
+              logger.debug("Resolve failed: {}, {}", serviceInfo, errorCode);
+              synchronized (stack) {
+                resolved[0] = true;
+                stack.notifyAll();
+              }
+
+              for (DiscoveryServiceListener l : service.listeners) {
+                l.onServiceLost(service, new ServiceInfo(serviceInfo), errorCode);
+              }
+            }
+
+            @Override
+            public void onServiceResolved(final NsdServiceInfo serviceInfo) {
+              logger.debug("Service resolved: {}", serviceInfo);
+              synchronized (stack) {
+                resolved[0] = true;
+                stack.notifyAll();
+              }
+
+              for (DiscoveryServiceListener l : service.listeners) {
+                l.onServiceFound(service, new ServiceInfo(serviceInfo));
+              }
+            }
+          });
+
+          synchronized (stack) {
+            while(!resolved[0]) {
+              stack.wait();
+            }
+          }
+
+        } catch (InterruptedException e) {
+          logger.warn("Resolver interrupted while waiting");
+          break;
+        }
+      }
+      logger.info("Resolver thread finished");
+    }
   }
 }
