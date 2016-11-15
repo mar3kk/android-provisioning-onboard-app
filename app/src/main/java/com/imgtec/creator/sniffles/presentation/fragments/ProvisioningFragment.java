@@ -29,44 +29,58 @@
  *
  */
 
-package com.imgtec.creator.sniffles.data.api.jsonrpc.pojo;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+package com.imgtec.creator.sniffles.presentation.fragments;
 
 
-public class JsonRPCResponse<T> {
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
-  int id;
+import com.imgtec.creator.sniffles.R;
+import com.imgtec.creator.sniffles.presentation.ActivityComponent;
+import com.imgtec.creator.sniffles.presentation.helpers.FragmentHelper;
+import com.imgtec.di.HasComponent;
 
-  @SerializedName("result")
-  @Expose
-  T result;
+public class ProvisioningFragment extends Ci40ListFragmentBase {
 
-  @SerializedName("error")
-  JsonRPCError error;
 
-  public int getId() {
-    return id;
+  public static ProvisioningFragment newInstance() {
+
+    Bundle args = new Bundle();
+
+    ProvisioningFragment fragment = new ProvisioningFragment();
+    fragment.setArguments(args);
+    return fragment;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  @Override
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
   }
 
-  public T getResult() {
-    return result;
+  @Override
+  protected void setupToolbar() {
+    super.setupToolbar();
+    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+    if (actionBar == null) {
+      return;
+    }
+    actionBar.show();
+    actionBar.setTitle(R.string.provisioning);
+    actionBar.setDisplayHomeAsUpEnabled(false);
+    actionBar.setHomeButtonEnabled(true);
   }
 
-  public void setResult(T result) {
-    this.result = result;
+  @Override
+  protected void setComponent() {
+    ((HasComponent<ActivityComponent>) getActivity()).getComponent().inject(this);
   }
 
-  public JsonRPCError getError() {
-    return error;
-  }
-
-  public void setError(JsonRPCError error) {
-    this.error = error;
+  @Override
+  public void onLoginSucceeded(String ipAddr, String username, String password) {
+    ClickerListFragment clickerListFragment = ClickerListFragment.newInstance(ipAddr, username, password);
+    FragmentHelper.replaceFragment(getActivity().getSupportFragmentManager(), clickerListFragment);
   }
 }

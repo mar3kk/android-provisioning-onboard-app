@@ -51,6 +51,7 @@ import android.widget.Toast;
 import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
+import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.JsonRPCResponse;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.RpcInfo;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.Wireless;
 import com.imgtec.creator.sniffles.presentation.ActivityComponent;
@@ -314,16 +315,16 @@ public class Ci40Fragment extends BaseFragment {
     }
   }
 
-  static class BoardDataCallback extends AbstractCallback<Ci40Fragment, JsonRPCApiService,RpcInfo> {
+  static class BoardDataCallback extends AbstractCallback<Ci40Fragment, JsonRPCApiService,JsonRPCResponse<RpcInfo>> {
 
     public BoardDataCallback(Ci40Fragment fragment, Handler mainHandler) {
       super(fragment, mainHandler);
     }
 
     @Override
-    public void onSuccess(Ci40Fragment fragment, JsonRPCApiService service, RpcInfo result) {
+    public void onSuccess(Ci40Fragment fragment, JsonRPCApiService service, JsonRPCResponse<RpcInfo> result) {
 
-      fragment.notifyDataReceived(result);
+      fragment.notifyDataReceived(result.getResult());
     }
 
     @Override

@@ -31,42 +31,23 @@
 
 package com.imgtec.creator.sniffles.data.api.jsonrpc.pojo;
 
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
 
-public class JsonRPCResponse<T> {
+public class ProvisioningDaemonState {
 
-  int id;
-
-  @SerializedName("result")
   @Expose
-  T result;
+  @SerializedName("clickers")
+  List<Clicker> clickers;
 
-  @SerializedName("error")
-  JsonRPCError error;
-
-  public int getId() {
-    return id;
+  public List<Clicker> getClickers() {
+    return clickers;
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public T getResult() {
-    return result;
-  }
-
-  public void setResult(T result) {
-    this.result = result;
-  }
-
-  public JsonRPCError getError() {
-    return error;
-  }
-
-  public void setError(JsonRPCError error) {
-    this.error = error;
+  public void setClickers(List<Clicker> clickers) {
+    this.clickers = clickers;
   }
 }

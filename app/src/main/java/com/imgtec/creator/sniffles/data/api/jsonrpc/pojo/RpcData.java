@@ -50,7 +50,7 @@ public class RpcData {
 
   @SerializedName("params")
   @Expose
-  private List<String> params = new ArrayList<>();
+  private List<Object> params = new ArrayList<>();
 
   @SerializedName("id")
   @Expose
@@ -68,11 +68,11 @@ public class RpcData {
     this.method = method;
   }
 
-  public List<String> getParams() {
+  public List<Object> getParams() {
     return params;
   }
 
-  public void setParams(List<String> params) {
+  public void setParams(List<Object> params) {
     this.params = params;
   }
 

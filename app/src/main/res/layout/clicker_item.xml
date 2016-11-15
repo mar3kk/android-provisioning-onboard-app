@@ -30,25 +30,35 @@
   ~
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/clicker_item_container"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:padding="@dimen/activity_horizontal_margin">
 
-    <item>
-        <shape android:shape="rectangle" >
-            <solid android:color="@android:color/white" />
-            <corners android:radius="2dp" />
+    <TextView
+        android:id="@+id/clicker_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/start_provisioning_button"/>
 
+    <Button
+        android:id="@+id/start_provisioning_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        style="@style/CustomButtonStyle"/>
 
-        </shape>
-    </item>
+    <ProgressBar
+        android:id="@+id/provisioning_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:indeterminate="true"/>
 
-    <item>
-        <shape>
-            <solid android:color="@android:color/transparent" />
-            <stroke
-                android:width="2dp"
-                android:color="@color/primary_color_purple" />
-            <corners android:radius="2dp" />
-        </shape>
-    </item>
-
-</layer-list>
+</RelativeLayout>

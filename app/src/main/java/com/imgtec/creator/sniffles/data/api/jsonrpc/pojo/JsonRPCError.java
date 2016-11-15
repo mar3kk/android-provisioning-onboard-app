@@ -34,39 +34,41 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc.pojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+public class JsonRPCError {
 
-public class JsonRPCResponse<T> {
-
-  int id;
-
-  @SerializedName("result")
   @Expose
-  T result;
+  @SerializedName("code")
+  int code;
 
-  @SerializedName("error")
-  JsonRPCError error;
+  @Expose
+  @SerializedName("message")
+  String message;
 
-  public int getId() {
-    return id;
+  @Expose
+  @SerializedName("data")
+  String data;
+
+  public int getCode() {
+    return code;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public void setCode(int code) {
+    this.code = code;
   }
 
-  public T getResult() {
-    return result;
+  public String getMessage() {
+    return message;
   }
 
-  public void setResult(T result) {
-    this.result = result;
+  public void setMessage(String message) {
+    this.message = message;
   }
 
-  public JsonRPCError getError() {
-    return error;
+  public String getData() {
+    return data;
   }
 
-  public void setError(JsonRPCError error) {
-    this.error = error;
+  public void setData(String data) {
+    this.data = data;
   }
 }
