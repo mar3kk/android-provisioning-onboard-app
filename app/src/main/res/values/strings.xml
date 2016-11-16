@@ -80,5 +80,7 @@
     <string name="macaddr">MAC ADDRESS</string>
     <string name="host">Host</string>
     <string name="provisioning">Provisioning</string>
+    <string name="onboaring_and_provisioning">ONBOARDING AND PROVISIONING</string>
+    <string name="about_info">Android onboarding application</string>
 
 </resources>

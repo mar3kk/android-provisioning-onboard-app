@@ -45,9 +45,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        app:srcCompat="@android:drawable/sym_def_app_icon"
+        android:src="@drawable/ic_provisioning_white_24dp"
+        android:scaleType="fitXY"
+        android:background="@drawable/primary_circle"
+        android:padding="8dp"
         android:layout_centerInParent="true"
-        />
+        tools:ignore="ContentDescription,RtlHardcoded"/>
 
 
     <LinearLayout
@@ -59,7 +62,8 @@
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="12dp"
-        android:paddingRight="12dp">
+        android:paddingRight="12dp"
+        tools:ignore="RtlHardcoded">
 
         <TextView
             android:id="@+id/title"

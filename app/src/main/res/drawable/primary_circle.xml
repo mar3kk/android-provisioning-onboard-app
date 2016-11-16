@@ -30,29 +30,9 @@
   ~
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/clients"
-            android:title="@string/clients"
-            android:icon="@drawable/ic_clients_24dp"/>
-        <item
-            android:id="@+id/onboarding"
-            android:title="@string/onboarding"
-            android:icon="@drawable/ic_tap_and_play_black_24dp"
-            />
-        <item
-            android:id="@+id/provisioning"
-            android:title="@string/provisioning"
-            android:icon="@drawable/ic_provisioning_white_24dp"/>
-        <item
-            android:id="@+id/about"
-            android:icon="@drawable/ic_info_outline_black_24dp"
-            android:title="@string/about"/>
-        <item
-            android:id="@+id/logout"
-            android:icon="@drawable/ic_exit_to_app_black_24dp"
-            android:title="@string/logout"/>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
 
-    </group>
-</menu>
+    <solid android:color="@color/primary_color_purple"/>
+</shape>

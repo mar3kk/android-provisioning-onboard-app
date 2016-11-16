@@ -1,0 +1,52 @@
+<!--
+  ~ <b>Copyright (c) 2016, Imagination Technologies Limited and/or its affiliated group companies
+  ~  and/or licensors. </b>
+  ~
+  ~  All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without modification, are permitted
+  ~  provided that the following conditions are met:
+  ~
+  ~  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+  ~      and the following disclaimer.
+  ~
+  ~  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+  ~      conditions and the following disclaimer in the documentation and/or other materials provided
+  ~      with the distribution.
+  ~
+  ~  3. Neither the name of the copyright holder nor the names of its contributors may be used to
+  ~      endorse or promote products derived from this software without specific prior written
+  ~      permission.
+  ~
+  ~  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+  ~  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+  ~  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+  ~  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  ~  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+  ~  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+  ~  WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  ~
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0">
+    <path
+        android:pathData="M17.412,18.943C15.693,20.421 13.434,21.318 10.961,21.318C5.574,21.318 1.207,17.064 1.207,11.818C1.207,6.571 5.574,2.318 10.961,2.318C16.347,2.318 20.714,6.571 20.714,11.818L19.495,11.818C19.495,7.227 15.674,3.505 10.961,3.505C6.247,3.505 2.426,7.227 2.426,11.818C2.426,16.409 6.247,20.13 10.961,20.13C12.569,20.13 14.074,19.696 15.359,18.943L17.412,18.943L17.412,18.943Z"
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="0.75"/>
+    <path
+        android:pathData="M20.014,14.017l2.193,-3.7l-4.386,0z"
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="0.75"/>
+    <path
+        android:pathData="M14.757,11.493C14.628,11.364 14.471,11.3 14.287,11.3L9.208,11.3L9.208,9.092C9.208,8.604 9.381,8.188 9.726,7.843C10.071,7.498 10.487,7.325 10.975,7.325C11.463,7.325 11.879,7.498 12.224,7.843C12.569,8.188 12.742,8.604 12.742,9.092C12.742,9.211 12.785,9.315 12.873,9.402C12.96,9.49 13.064,9.533 13.183,9.533L13.625,9.533C13.744,9.533 13.848,9.49 13.935,9.402C14.023,9.315 14.066,9.211 14.066,9.092C14.066,8.24 13.764,7.513 13.159,6.907C12.554,6.302 11.826,6 10.975,6C10.124,6 9.396,6.302 8.791,6.907C8.186,7.512 7.883,8.24 7.883,9.092L7.883,11.3L7.662,11.3C7.479,11.3 7.322,11.364 7.193,11.493C7.064,11.622 7,11.778 7,11.962L7,15.937C7,16.121 7.064,16.278 7.193,16.407C7.322,16.535 7.479,16.6 7.662,16.6L14.287,16.6C14.471,16.6 14.628,16.535 14.757,16.407C14.885,16.278 14.95,16.121 14.95,15.937L14.95,11.962C14.95,11.778 14.885,11.622 14.757,11.493Z"
+        android:strokeColor="#00000000"
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="1"/>
+</vector>

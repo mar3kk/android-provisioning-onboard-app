@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -45,9 +46,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.imgtec.creator.sniffles.R;
 import com.imgtec.creator.sniffles.data.Preferences;
+import com.imgtec.creator.sniffles.data.UserData;
 import com.imgtec.creator.sniffles.presentation.fragments.AboutFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.ClientsFragment;
 import com.imgtec.creator.sniffles.presentation.fragments.LoginFragment;
@@ -62,6 +65,7 @@ import com.imgtec.di.HasComponent;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,7 +77,6 @@ import butterknife.Unbinder;
 public class MainActivity extends BaseActivity implements HasComponent<ActivityComponent>,
     NavigationView.OnNavigationItemSelectedListener {
 
-  public static final int REQUEST_ACCESS_NETWORKS_STATE = 10;
   private ActivityComponent component;
 
   @BindView(R.id.app_bar) AppBarLayout appBar;
@@ -84,14 +87,15 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
   Fragment currentFragment;
 
   @Inject Logger logger;
-
   @Inject DrawerHelper drawerHelper;
   @Inject ToolbarHelper toolbarHelper;
   @Inject Preferences preferences;
   @Inject PermissionHelper permissionHelper;
+  @Inject @Named("Main") Handler handler;
 
   ActionBarDrawerToggle toggle;
   Unbinder unbinder;
+  boolean doubleBack = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -103,9 +107,16 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
     setSupportActionBar(toolbar);
     toolbarHelper.setToolbar(toolbar);
     setupNavigationDrawer();
-
+    updateDrawerHelper();
     if (savedInstanceState == null) {
       showFragmentWithClearBackstack(LoginFragment.newInstance());
+    }
+  }
+
+  private void updateDrawerHelper() {
+    UserData data = preferences.getUserData();
+    if (data != null) {
+      drawerHelper.updateHeader(data.getUsername(), data.getEmail());
     }
   }
 
@@ -180,6 +191,17 @@ public class MainActivity extends BaseActivity implements HasComponent<ActivityC
       final FragmentManager fm = getSupportFragmentManager();
       if (fm.getBackStackEntryCount() > 0) {
         fm.popBackStack();
+      } else if (!doubleBack) {
+        doubleBack = true;
+        Toast.makeText(this,"Please click BACK again to exit.", Toast.LENGTH_SHORT).show();
+
+        handler.postDelayed(new Runnable() {
+
+          @Override
+          public void run() {
+            doubleBack = false;
+          }
+        }, 2000);
       } else {
         super.onBackPressed();
       }
