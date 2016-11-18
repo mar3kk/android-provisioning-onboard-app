@@ -1,0 +1,30 @@
+@startuml
+
+box "Mobile device"
+participant "Fragment" as f
+participant "JSON-RPC Service" as rpc
+end box
+
+box "Ci40 LuCI"
+	participant "JSON-RPC" as luciRpc
+	participant "Platform" as platform
+end box
+
+f -> rpc: authorize(user, password)
+rpc --> luciRpc: POST(/cgi-bin/luci/auth)
+rpc <-- luciRpc: token
+f <-- rpc: token
+
+f -> rpc: onboarding(clientName, key, secret)
+rpc -> luciRpc: POST(cgi-bin/luci/rpc/sys)
+note right
+Starts onboarding procedure
+end note
+
+luciRpc --> platform
+luciRpc <-- platform
+
+rpc <-- luciRpc: OK
+f <-- rpc
+
+@enduml

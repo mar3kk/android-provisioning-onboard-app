@@ -1,0 +1,121 @@
+/*
+ * <b>Copyright (c) 2016, Imagination Technologies Limited and/or its affiliated group companies
+ *  and/or licensors. </b>
+ *
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without modification, are permitted
+ *  provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *
+ *  3. Neither the name of the copyright holder nor the names of its contributors may be used to
+ *      endorse or promote products derived from this software without specific prior written
+ *      permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ *  WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+
+    def globalConfiguration = rootProject.extensions.getByName("ext")
+
+
+    compileSdkVersion globalConfiguration.getAt("snifflesCompileSdkVersion")
+    buildToolsVersion globalConfiguration.getAt("snifflesBuildToolsVersion")
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    defaultConfig {
+        applicationId globalConfiguration.getAt("snifflesApplicationId")
+
+        minSdkVersion globalConfiguration.getAt("snifflesMinSdkVersion")
+        targetSdkVersion globalConfiguration.getAt("snifflesTargetSdkVersion")
+
+        versionCode globalConfiguration.getAt("snifflesVersionCode")
+        versionName globalConfiguration.getAt("snifflesVersionName")
+
+        testApplicationId globalConfiguration.getAt("snifflesTestApplicationId")
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+
+        release {
+            keyAlias project.keyAlias
+            keyPassword project.keyPassword
+            storeFile file(project.storeFile)
+            storePassword project.storePassword
+        }
+    }
+
+    buildTypes {
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+
+
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    def snifflesDependencies = rootProject.ext.snifflesDependencies
+    compile snifflesDependencies.appCompat
+    compile snifflesDependencies.appDesign
+    compile snifflesDependencies.recyclerView
+
+    compile snifflesDependencies.butterKnife
+    apt snifflesDependencies.butterKnifeCompiler
+
+    compile snifflesDependencies.slf4j
+    compile snifflesDependencies.logback
+
+    compile snifflesDependencies.dagger
+    apt snifflesDependencies.daggerCompiler
+    compile snifflesDependencies.jsr250
+
+    debugCompile snifflesDependencies.leakcanary
+    releaseCompile snifflesDependencies.leakcanaryNoOp
+
+    compile snifflesDependencies.okhttp
+    compile snifflesDependencies.gson
+    compile snifflesDependencies.okhttpLoggingInterceptor
+
+    compile project(':di')
+
+    compile 'com.android.support:support-v4:24.2.1'
+    testCompile 'junit:junit:4.12'
+}
