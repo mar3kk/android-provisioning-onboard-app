@@ -1,6 +1,12 @@
-# Ci40 Onboarding Application for Android
+# Ci40 Provisioning and Onboarding Application for Android
 ![](docs/img.png)
 ---
+
+# Prerequisites
+ After importing project to Android Studio please rename 'app/gradle.properties.sample'
+ to 'app/gradle.properties' and provide proper configuration to sign your app.
+
+# About the application
 
  The 'Onboarding-app' is a mobile Android application that helps users to 
  easily perform Ci40 onboarding and clickers provisioning. This gets Ci40 and constrained devices onto a network and registered with Device Server.
@@ -37,16 +43,16 @@
     - application that runs on Ci40 board,
     - ensures secure connection between constrained devices,
     - exchanges crypto keys and much more
-    - can be found [here] (https://gitlab.flowcloud.systems/creator/ci40-provisioning-daemon)
+    - can be found [here] (https://github.com/CreatorDev/ci40-provision-daemon)
  
  * scripts:
     - provides entry point for communication provisioning demon and LuCI web scripts
     - exposes utility API available via JSON-RPC and uBus
-    - can be found [here] (https://gitlab.flowcloud.systems/creator/ci40-onboarding-scripts)
+    - can be found [here] (https://github.com/CreatorDev/ci40-onboarding-scripts)
  
  * provisioning library:
     - delivers PSK and other configuration data to provision constrained devices
-    - can be found [here](https://gitlab.flowcloud.systems/creator/contiki-provisioning-library) 
+    - can be found [here](https://github.com/CreatorDev/contiki-provisioning-library) 
  
  * device server:
     - LWM2M management server,
