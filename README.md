@@ -124,6 +124,9 @@
 # Constrained device provisioning
   
   To be done...
+
+# Contributing
+If you have a contribution to make please follow the processes laid out in [contributor guide](CONTRIBUTING.md).
   
 # License
  Copyright (c) 2016, Imagination Technologies Limited and/or its affiliated group companies.
