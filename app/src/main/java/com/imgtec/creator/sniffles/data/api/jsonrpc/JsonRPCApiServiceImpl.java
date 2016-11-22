@@ -80,8 +80,8 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
-        try {
 
+        try {
           Condition.checkArgument(callback != null, "Callback cannot be null");
           final String token = authorize(ipAddress, userName, password);
           if (token == null) {
@@ -107,14 +107,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           Map<Object, Object> m = performMethodCall("isProvisioned", "creator_onboarding", null, id, ipAddr, token);
           callback.onSuccess(JsonRPCApiServiceImpl.this, m.get("result") == null ? false : (Boolean) m.get("result"));
 
@@ -135,12 +136,13 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddress, userName, password);
-        logger.debug("JSON-RPC: token = {}", token);
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddress, userName, password);
+          logger.debug("JSON-RPC: token = {}", token);
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           final List<Object> params = Arrays.asList(
               (Object)"https://deviceserver.flowcloud.systems",
               clientName.isEmpty() ? "" : clientName,
@@ -169,14 +171,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           Map<Object, Object> m = performMethodCall("unProvision", "creator_onboarding", null, id, ipAddr, token);
           callback.onSuccess(JsonRPCApiServiceImpl.this, m.get("result") == null ? false : (Boolean) m.get("result"));
 
@@ -195,14 +198,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           JsonRPCResponse<RpcInfo> result = performMethodCall("boardInfo", "creator_onboarding", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<RpcInfo>>(){});
 
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
@@ -221,14 +225,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           JsonRPCResponse<Boolean> result = performMethodCall("isProvisioningDaemonRunning", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
 
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
@@ -247,14 +252,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           JsonRPCResponse<Boolean> result = performMethodCall("startProvisioningDaemon", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
 
@@ -272,16 +278,17 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, username, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-        List<Object> params = new ArrayList<Object>();
-        params.add(clickerID);
-
         try {
+          final String token = authorize(ipAddr, username, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+          List<Object> params = new ArrayList<Object>();
+          params.add(clickerID);
+
+
           JsonRPCResponse<Boolean> result = performMethodCall("selectClicker", "creator_provisioning", params, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
 
@@ -299,14 +306,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, username, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, username, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           JsonRPCResponse<Boolean> result = performMethodCall("startProvisioning", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
 
@@ -324,14 +332,15 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
       @Override
       public void run() {
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
         try {
+          final String token = authorize(ipAddr, userName, password);
+          if (token == null) {
+            throw new AuthorizationFailedException();
+          }
+
+          Condition.checkArgument(callback != null, "Callback cannot be null");
+
+
           JsonRPCResponse<ProvisioningDaemonState> result = performMethodCall("provisioningDaemonState", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<ProvisioningDaemonState>>(){});
 
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ <b>Copyright (c) 2016, Imagination Technologies Limited and/or its affiliated group companies
   ~  and/or licensors. </b>
@@ -30,25 +29,9 @@
   ~
   -->
 
-<resources>
-
-    <color name="primary_color_purple">#72166b</color>
-
-    <color name="supporting_color_dark_purple">#3c0555</color>
-    <color name="supporting_color_light_purple">#aa73a6</color>
-
-    <color name="secondary_color_dark_grey">#292c38</color>
-    <color name="secondary_color_grey">#666666</color>
-    <color name="secondary_color_light_grey">#c6c6c6</color>
-
-    <color name="black">#000000</color>
-
-    <color name="text_primary">#d9000000</color>
-    <color name="text_secondary">#8c000000</color>
-    <color name="divider">#1a000000</color>
-    <color name="light_background">#FFFAFAFA</color>
-
-    <color name="error">#D50000</color>
-
-    <color name="colorConnected">#009788</color>
-</resources>
+<vector android:height="24dp" android:viewportHeight="20.0"
+    android:viewportWidth="20.0" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#0C8F14"
+        android:pathData="M10,0C4.48,0 0,4.48 0,10C0,15.52 4.48,20 10,20C15.52,20 20,15.52 20,10C20,4.48 15.52,0 10,0ZM8,15L3,10L4.41,8.59L8,12.17L15.59,4.58L17,6L8,15Z"
+        android:strokeColor="#00000000" android:strokeWidth="1"/>
+</vector>

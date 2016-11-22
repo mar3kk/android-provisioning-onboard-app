@@ -53,6 +53,18 @@ public class Clicker {
   @SerializedName("inProvisionState")
   boolean inProvisionState;
 
+  public boolean isProvisioned() {
+    return isProvisioned;
+  }
+
+  public void setProvisioned(boolean provisioned) {
+    isProvisioned = provisioned;
+  }
+
+  @Expose
+  @SerializedName("isProvisioned")
+  boolean isProvisioned;
+
   public int getClickerID() {
     return clickerID;
   }

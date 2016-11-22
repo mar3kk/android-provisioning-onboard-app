@@ -50,6 +50,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.imgtec.creator.sniffles.R;
+import com.imgtec.creator.sniffles.data.Filter;
 import com.imgtec.creator.sniffles.data.api.deviceserver.DeviceServerApiService;
 import com.imgtec.creator.sniffles.data.api.pojo.Client;
 import com.imgtec.creator.sniffles.data.api.pojo.Clients;
@@ -179,7 +180,7 @@ public class ClientsFragment extends BaseFragment {
 
   private void requestClients() {
     toolbarHelper.showProgress();
-    deviceServerApiService.requestClients(new DeviceServerApiService.Filter<Client>() {
+    deviceServerApiService.requestClients(new Filter<Client>() {
       @Override
       public boolean accept(Client filter) {
         return true;

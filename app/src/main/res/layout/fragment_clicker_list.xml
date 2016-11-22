@@ -30,16 +30,12 @@
   ~
   -->
 
-<RelativeLayout
+
+<android.support.v7.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clicker_list_rv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/clicker_list_rv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-</RelativeLayout>
+    tools:listitem="@layout/clicker_item"
+    android:background="@android:color/white"/>

@@ -48,4 +48,7 @@
     <dimen name="list_item_2_size">12sp</dimen>
 
     <dimen name="grid_item_text_size">16sp</dimen>
+
+    <dimen name="list_item_height">72dp</dimen>
+    clicker_item_height
 </resources>
