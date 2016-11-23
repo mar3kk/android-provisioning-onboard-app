@@ -74,9 +74,11 @@ public class App extends Application implements HasComponent<ApplicationComponen
       if (LeakCanary.isInAnalyzerProcess(this)) {
         return null;
       }
+      logger.debug("Application: installing LeakCanary.");
       return LeakCanary.install(this);
     }
     else {
+      logger.debug("Application: LeakCanary disabled.");
       return RefWatcher.DISABLED;
     }
   }

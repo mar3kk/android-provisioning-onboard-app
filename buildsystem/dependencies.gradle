@@ -80,8 +80,8 @@ ext {
     daggerVersion = '2.0.2'
     jsr250Version = '1.0'
 
-    leakcanaryVersion = '1.3.1'
-    leakcanaryNoOpVersion = '1.3.1'
+    leakcanaryVersion = '1.5'
+    leakcanaryNoOpVersion = '1.5'
 
     javaxInjectVersion = '1'
 
