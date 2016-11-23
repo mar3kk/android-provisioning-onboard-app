@@ -124,4 +124,7 @@
 # Constrained device provisioning
   
   To be done...
+
+# Contributing
+If you have a contribution to make please follow the processes laid out in [contributor guide](CONTRIBUTING.md).
   
