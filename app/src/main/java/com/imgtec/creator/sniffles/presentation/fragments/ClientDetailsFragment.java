@@ -143,6 +143,7 @@ public class ClientDetailsFragment extends BaseFragment {
     actionBar.setShowHideAnimationEnabled(true);
     setHasOptionsMenu(false);
   }
+
   @Override
   public void setupDrawer() {
     drawerHelper.getDrawerToggle().setDrawerIndicatorEnabled(false);
