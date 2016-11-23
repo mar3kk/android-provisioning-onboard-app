@@ -82,5 +82,9 @@
     <string name="provisioning">Provisioning</string>
     <string name="onboaring_and_provisioning">ONBOARDING AND PROVISIONING</string>
     <string name="about_info">Android onboarding application</string>
+    <string name="choose_device">CHOOSE A DEVICE TO PROVISION</string>
+    <string name="provisioned_devices">PROVISIONED DEVICES</string>
+    <string name="provision">PROVISION</string>
+    <string name="connected">CONNECTED</string>
 
 </resources>

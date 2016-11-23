@@ -35,6 +35,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.gson.reflect.TypeToken;
+import com.imgtec.creator.sniffles.data.Filter;
 import com.imgtec.creator.sniffles.data.Preferences;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.oauth.OauthManager;
@@ -55,7 +56,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
@@ -179,7 +179,7 @@ public class DeviceServerApiServiceImpl implements DeviceServerApiService {
           Condition.checkArgument(client != null, "Client cannot be null");
           Condition.checkArgument(callback != null, "Callback cannot be null");
 
-          ObjectTypes result = getObjectTypes(client, new DeviceServerApiService.Filter<ObjectType>() {
+          ObjectTypes result = getObjectTypes(client, new Filter<ObjectType>() {
 
                 @Override
                 public boolean accept(ObjectType filter) {

@@ -33,6 +33,7 @@ package com.imgtec.creator.sniffles.presentation.fragments;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -46,6 +47,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.imgtec.creator.sniffles.R;
+import com.imgtec.creator.sniffles.data.Filter;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.JsonRPCApiService;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.Clicker;
@@ -56,6 +58,11 @@ import com.imgtec.creator.sniffles.presentation.adapters.ClickersAdapter;
 import com.imgtec.creator.sniffles.presentation.views.RecyclerItemClickSupport;
 import com.imgtec.di.HasComponent;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -79,9 +86,11 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
 
   @Inject JsonRPCApiService jsonRpc;
   @Inject @Named("Main") Handler mainHandler;
+
   @BindView(R.id.clicker_list_rv) RecyclerView recyclerView;
+
   ScheduledExecutorService executor;
-  private ClickersAdapter adapter;
+  ClickersAdapter adapter;
 
 
   public static ClickerListFragment newInstance(String ipAddr, String username, String password) {
@@ -120,7 +129,7 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
         .setOnItemClickListener(new RecyclerItemClickSupport.OnItemClickListener() {
           @Override
           public void onItemClicked(RecyclerView recyclerView, int position, View view) {
-            requestSelectClicker(adapter.getItem(position).getClickerID());
+            requestSelectClicker(adapter.getItem(position).getClicker().getClickerID());
           }
         });
   }
@@ -240,16 +249,20 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
       mainHandler.post(new Runnable() {
         @Override
         public void run() {
-          hideProgressDialog();
-          if (response.getResult() != null) {
-            adapter.clear();
-            adapter.addAll(response.getResult().getClickers());
-            adapter.notifyDataSetChanged();
-          } else {
-            if (response.getError().getCode() == 4) {
-              jsonRpc.startProvisioningDaemon(ipAddr, username, password, startProvisioningDaemonCallback);
+          if (getActivity() != null && isAdded()) {
+            hideProgressDialog();
+            if (response.getResult() != null) {
+              List<ClickersAdapter.ClickerWrapper> items = ClickersMapper.prepareCollection(getContext(), response.getResult().getClickers());
+              adapter.clear();
+              adapter.addAll(items);
+              adapter.notifyDataSetChanged();
+
             } else {
-              showToast(response.getError().getMessage());
+              if (response.getError().getCode() == 4) {
+                jsonRpc.startProvisioningDaemon(ipAddr, username, password, startProvisioningDaemonCallback);
+              } else {
+                showToast(response.getError().getMessage());
+              }
             }
           }
         }
@@ -359,5 +372,73 @@ public class ClickerListFragment extends BaseFragment implements ClickersAdapter
 
   private void showToast(String msg) {
     Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+  }
+
+  static class ClickersMapper {
+
+    public static List<ClickersAdapter.ClickerWrapper> prepareCollection(Context context, List<Clicker> clickers) {
+      List<ClickersAdapter.ClickerWrapper> list = new ArrayList<>();
+      Collections.sort(clickers, new Comparator<Clicker>() {
+        @Override
+        public int compare(Clicker o1, Clicker o2) {
+          return o1.getClickerName().compareTo(o2.getClickerName());
+        }
+      });
+
+      //header
+      ClickersAdapter.ClickerWrapper emptyClicker =
+          new ClickersAdapter.ClickerWrapper(new Clicker(), ClickersAdapter.ClickerWrapper.Type.INFO);
+      emptyClicker.setName(context.getString(R.string.choose_device));
+      list.add(emptyClicker);
+
+      //list or none
+      List<ClickersAdapter.ClickerWrapper> wrappers = wrapClickers(clickers, new Filter<Clicker>() {
+        @Override
+        public boolean accept(Clicker clicker) {
+          return !clicker.isProvisioned();
+        }
+      });
+
+      if (wrappers.size() > 0) {
+        list.addAll(wrappers);
+      }
+      else {
+        list.add(new ClickersAdapter.ClickerWrapper(new Clicker(), ClickersAdapter.ClickerWrapper.Type.NONE));
+      }
+
+      //header
+      emptyClicker = new ClickersAdapter.ClickerWrapper(new Clicker(), ClickersAdapter.ClickerWrapper.Type.INFO);
+      emptyClicker.setName(context.getString(R.string.provisioned_devices));
+      list.add(emptyClicker);
+
+      //list or none
+      wrappers = wrapClickers(clickers, new Filter<Clicker>() {
+        @Override
+        public boolean accept(Clicker clicker) {
+          return clicker.isProvisioned();
+        }
+      });
+
+      if (wrappers.size() > 0) {
+        list.addAll(wrappers);
+      }
+      else {
+        list.add(new ClickersAdapter.ClickerWrapper(new Clicker(), ClickersAdapter.ClickerWrapper.Type.NONE));
+      }
+
+      return list;
+    }
+
+    private static List<ClickersAdapter.ClickerWrapper> wrapClickers(List<Clicker> clickers,
+                                                                     Filter<Clicker> filter) {
+      List<ClickersAdapter.ClickerWrapper> list = new ArrayList<>();
+
+      for (Clicker c: clickers) {
+        if (filter.accept(c)) {
+          list.add(new ClickersAdapter.ClickerWrapper(c, ClickersAdapter.ClickerWrapper.Type.ITEM));
+        }
+      }
+      return list;
+    }
   }
 }

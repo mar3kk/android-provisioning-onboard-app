@@ -33,7 +33,6 @@ package com.imgtec.creator.sniffles.data.api.jsonrpc;
 
 import android.content.Context;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.imgtec.creator.sniffles.data.api.ApiCallback;
 import com.imgtec.creator.sniffles.data.api.jsonrpc.pojo.JsonRPCResponse;
@@ -80,8 +79,8 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
-        try {
 
+        try {
           Condition.checkArgument(callback != null, "Callback cannot be null");
           final String token = authorize(ipAddress, userName, password);
           if (token == null) {
@@ -103,25 +102,17 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
   @Override
   public void isConfigured(final String ipAddr, final String userName,
                            final String password, final ApiCallback<JsonRPCApiService, Boolean> callback) {
-    executorService.execute(new Runnable() {
+
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, Boolean>>(ipAddr, userName, password, callback) {
       @Override
-      public void run() {
-
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          Map<Object, Object> m = performMethodCall("isProvisioned", "creator_onboarding", null, id, ipAddr, token);
+      void doExecute(String token) throws IOException {
+        Map<Object, Object> m = performMethodCall("isProvisioned",
+                                                  "creator_onboarding",
+                                                  null,
+                                                  id,
+                                                  ipAddr,
+                                                  token);
           callback.onSuccess(JsonRPCApiServiceImpl.this, m.get("result") == null ? false : (Boolean) m.get("result"));
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
       }
     });
   }
@@ -131,217 +122,171 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
                          final String clientName, final String key, final String secret,
                          final ApiCallback<JsonRPCApiService, String> callback) {
 
-    executorService.execute(new Runnable() {
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, String>>(ipAddress, userName, password, callback) {
       @Override
-      public void run() {
+      void doExecute(String token) throws IOException {
+        final List<Object> params = Arrays.asList(
+                                                  (Object)"https://deviceserver.flowcloud.systems",
+                                                  clientName.isEmpty() ? "" : clientName,
+                                                  key,
+                                                  secret);
 
-        final String token = authorize(ipAddress, userName, password);
-        logger.debug("JSON-RPC: token = {}", token);
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          final List<Object> params = Arrays.asList(
-              (Object)"https://deviceserver.flowcloud.systems",
-              clientName.isEmpty() ? "" : clientName,
-              key,
-              secret);
-
-          Map<Object, Object> m = performMethodCall("doOnboarding", "creator_onboarding", params, id, ipAddress, token);
+          Map<Object, Object> m = performMethodCall("doOnboarding",
+                                                    "creator_onboarding",
+                                                    params,
+                                                    id,
+                                                    ipAddress,
+                                                    token);
 
           if (m.get("result") == null) {
             throw new RuntimeException("Unknown error");
           }
           callback.onSuccess(JsonRPCApiServiceImpl.this, ipAddress);
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: creator rpc call failed!");
-
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
       }
     });
   }
 
   @Override
-  public void removeConfiguration(final String ipAddr, final String userName, final String password,
+  public void removeConfiguration(final String ipAddr,
+                                  final String userName,
+                                  final String password,
                                   final ApiCallback<JsonRPCApiService, Boolean> callback) {
-    executorService.execute(new Runnable() {
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, Boolean>>(ipAddr, userName, password, callback) {
       @Override
-      public void run() {
-
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          Map<Object, Object> m = performMethodCall("unProvision", "creator_onboarding", null, id, ipAddr, token);
+      void doExecute(String token) throws IOException {
+        Map<Object, Object> m = performMethodCall("unProvision", "creator_onboarding", null, id, ipAddr, token);
           callback.onSuccess(JsonRPCApiServiceImpl.this, m.get("result") == null ? false : (Boolean) m.get("result"));
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
       }
     });
   }
 
   @Override
-  public void requestInfo(final String ipAddr, final String userName, final String password,
+  public void requestInfo(final String ipAddr,
+                          final String userName,
+                          final String password,
                           final ApiCallback<JsonRPCApiService, JsonRPCResponse<RpcInfo>> callback) {
-    executorService.execute(new Runnable() {
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, JsonRPCResponse<RpcInfo>>>(ipAddr, userName, password, callback) {
       @Override
-      public void run() {
-
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          JsonRPCResponse<RpcInfo> result = performMethodCall("boardInfo", "creator_onboarding", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<RpcInfo>>(){});
-
-          callback.onSuccess(JsonRPCApiServiceImpl.this, result);
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
+      void doExecute(String token) throws IOException {
+        JsonRPCResponse<RpcInfo> result = performMethodCall("boardInfo",
+                                                            "creator_onboarding",
+                                                            null,
+                                                            id,
+                                                            ipAddr,
+                                                            token,
+                                                            new TypeToken<JsonRPCResponse<RpcInfo>>(){});
+        callback.onSuccess(JsonRPCApiServiceImpl.this, result);
       }
     });
   }
 
   @Override
-  public void isProvisioningDaemonRunning(final String ipAddr, final String userName, final String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
-    executorService.execute(new Runnable() {
+  public void isProvisioningDaemonRunning(final String ipAddr,
+                                          final String userName,
+                                          final String password,
+                                          final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>>>(ipAddr, userName, password, callback) {
       @Override
-      public void run() {
+      void doExecute(String token) throws IOException {
+        JsonRPCResponse<Boolean> result = performMethodCall("isProvisioningDaemonRunning",
+                                                            "creator_provisioning",
+                                                            null,
+                                                            id,
+                                                            ipAddr,
+                                                            token,
+                                                            new TypeToken<JsonRPCResponse<Boolean>>(){});
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          JsonRPCResponse<Boolean> result = performMethodCall("isProvisioningDaemonRunning", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
-
-          callback.onSuccess(JsonRPCApiServiceImpl.this, result);
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
+        callback.onSuccess(JsonRPCApiServiceImpl.this, result);
       }
     });
   }
 
   @Override
-  public void startProvisioningDaemon(final String ipAddr, final String userName, final String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
-    executorService.execute(new Runnable() {
+  public void startProvisioningDaemon(final String ipAddr,
+                                      final String userName,
+                                      final String password,
+                                      final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
+
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>>>(ipAddr, userName, password, callback) {
       @Override
-      public void run() {
-
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          JsonRPCResponse<Boolean> result = performMethodCall("startProvisioningDaemon", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
-          callback.onSuccess(JsonRPCApiServiceImpl.this, result);
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
+      void doExecute(String token) throws IOException {
+        JsonRPCResponse<Boolean> result = performMethodCall("startProvisioningDaemon",
+                                                            "creator_provisioning",
+                                                            null,
+                                                            id,
+                                                            ipAddr,
+                                                            token,
+                                                            new TypeToken<JsonRPCResponse<Boolean>>(){});
+        callback.onSuccess(JsonRPCApiServiceImpl.this, result);
       }
     });
   }
 
   @Override
-  public void selectClicker(final String ipAddr, final String username, final String password, final int clickerID, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
-    executorService.execute(new Runnable() {
+  public void selectClicker(final String ipAddr,
+                            final String username,
+                            final String password,
+                            final int clickerID,
+                            final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
+
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>>>(ipAddr, username, password, callback) {
       @Override
-      public void run() {
+      void doExecute(String token) throws IOException {
 
-        final String token = authorize(ipAddr, username, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-        List<Object> params = new ArrayList<Object>();
-        params.add(clickerID);
-
-        try {
-          JsonRPCResponse<Boolean> result = performMethodCall("selectClicker", "creator_provisioning", params, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
+          List<Object> params = new ArrayList<Object>();
+          params.add(clickerID);
+          JsonRPCResponse<Boolean> result = performMethodCall("selectClicker",
+                                                              "creator_provisioning",
+                                                              params,
+                                                              id,
+                                                              ipAddr,
+                                                              token,
+                                                              new TypeToken<JsonRPCResponse<Boolean>>(){});
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
       }
     });
   }
 
   @Override
-  public void startProvisioning(final String ipAddr, final String username, final String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
-    executorService.execute(new Runnable() {
+  public void startProvisioning(final String ipAddr,
+                                final String username,
+                                final String password,
+                                final ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>> callback) {
+    executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, JsonRPCResponse<Boolean>>>(ipAddr, username, password, callback) {
       @Override
-      public void run() {
-
-        final String token = authorize(ipAddr, username, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          JsonRPCResponse<Boolean> result = performMethodCall("startProvisioning", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<Boolean>>(){});
-          callback.onSuccess(JsonRPCApiServiceImpl.this, result);
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
-        }
+      void doExecute(String token) throws IOException {
+        JsonRPCResponse<Boolean> result = performMethodCall("startProvisioning",
+                                                            "creator_provisioning",
+                                                            null,
+                                                            id,
+                                                            ipAddr,
+                                                            token,
+                                                            new TypeToken<JsonRPCResponse<Boolean>>(){});
+        callback.onSuccess(JsonRPCApiServiceImpl.this, result);
       }
     });
   }
 
   @Override
-  public void getProvisioningDaemonState(final String ipAddr, final String userName, final String password, final ApiCallback<JsonRPCApiService, JsonRPCResponse<ProvisioningDaemonState>> callback) {
-    executorService.execute(new Runnable() {
-      @Override
-      public void run() {
+  public void getProvisioningDaemonState(final String ipAddr,
+                                         final String userName,
+                                         final String password,
+                                         final ApiCallback<JsonRPCApiService, JsonRPCResponse<ProvisioningDaemonState>> callback) {
+      executorService.execute(new AuthorizedRequest<ApiCallback<JsonRPCApiService, JsonRPCResponse<ProvisioningDaemonState>>>(ipAddr, userName, password, callback){
 
-        final String token = authorize(ipAddr, userName, password);
-        if (token == null) {
-          throw new AuthorizationFailedException();
-        }
-
-        Condition.checkArgument(callback != null, "Callback cannot be null");
-
-        try {
-          JsonRPCResponse<ProvisioningDaemonState> result = performMethodCall("provisioningDaemonState", "creator_provisioning", null, id, ipAddr, token, new TypeToken<JsonRPCResponse<ProvisioningDaemonState>>(){});
-
+        @Override
+        void doExecute(final String token) throws IOException {
+          JsonRPCResponse<ProvisioningDaemonState> result =
+              performMethodCall("provisioningDaemonState",
+                                "creator_provisioning",
+                                null,
+                                id,
+                                ipAddr,
+                                token,
+                                new TypeToken<JsonRPCResponse<ProvisioningDaemonState>>(){});
           callback.onSuccess(JsonRPCApiServiceImpl.this, result);
-
-        } catch (Exception e) {
-          logger.warn("JSON-RPC: calling isConfigured failed!", e);
-          callback.onFailure(JsonRPCApiServiceImpl.this, e);
         }
-      }
-    });
+      });
   }
 
   private String authorize(String ipAddr, final String userName, final String password)
@@ -392,5 +337,43 @@ public class JsonRPCApiServiceImpl implements JsonRPCApiService {
 
     CreatorCallRequest creatorCallRequest = new CreatorCallRequest(ipAddress, endpoint, token, data);
     return  creatorCallRequest.execute(client, typeToken);
+  }
+
+
+  abstract class AuthorizedRequest<T extends ApiCallback> implements Runnable {
+
+    private final String ipAddr;
+    private final String userName;
+    private final String password;
+    private final T callback;
+
+    AuthorizedRequest(final String ipAddr, final String userName, final String password,
+                      final T callback) {
+      super();
+      this.ipAddr = ipAddr;
+      this.userName = userName;
+      this.password = password;
+      this.callback = callback;
+    }
+
+    @Override
+    public void run() {
+      try {
+        final String token = authorize(ipAddr, userName, password);
+        if (token == null) {
+          throw new AuthorizationFailedException();
+        }
+
+        Condition.checkArgument(callback != null, "Callback cannot be null");
+
+        doExecute(token);
+
+      } catch (Exception e) {
+        logger.warn("JSON-RPC: calling isConfigured failed!", e);
+        callback.onFailure(JsonRPCApiServiceImpl.this, e);
+      }
+    }
+
+    abstract void doExecute(String token) throws IOException;
   }
 }

@@ -30,35 +30,71 @@
   ~
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/clicker_item_container"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:padding="@dimen/activity_horizontal_margin">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clicker_item_container"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:background="@drawable/clicker_item_selector">
+
+    <FrameLayout
+        android:layout_centerVertical="true"
+        android:id="@+id/icon_container"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/gray_circle">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:layout_gravity="center"
+            android:src="@drawable/clicker"
+
+            />
+    </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/right_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/start_provisioning_button"
+            style="@style/CustomButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/provision"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_connected_24"
+            android:tint="@color/colorConnected"
+            android:layout_centerVertical="true"
+            />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/clicker_name_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/start_provisioning_button"/>
-
-    <Button
-        android:id="@+id/start_provisioning_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        style="@style/CustomButtonStyle"/>
-
-    <ProgressBar
-        android:id="@+id/provisioning_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:indeterminate="true"/>
-
+        android:paddingLeft="8dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="Very long clicker name 1234567890 "
+        android:layout_toRightOf="@id/icon_container"
+        android:layout_toLeftOf="@id/right_container"
+        style="@style/AppTheme.ListItemTitle"
+        />
 </RelativeLayout>
