@@ -31,15 +31,7 @@
 
 allprojects {
     repositories {
-        mavenLocal()
-        maven {
-            url "http://nexus.flowservices.systems/content/groups/public"
-        }
-        maven {
-            url "https://jitpack.io"
-        }
-
-        mavenCentral()
+        jcenter()
     }
 }
 
@@ -52,17 +44,17 @@ ext {
     snifflesApplicationId = 'com.imgtec.creator.sniffles'
     snifflesTestApplicationId = 'com.imgtec.creator.sniffles.test'
     snifflesMinSdkVersion = 19
-    snifflesTargetSdkVersion = 22
+    snifflesTargetSdkVersion = 24
     snifflesVersionCode = 1
     snifflesVersionName = "1.0.0"
 
 
     //----------------------------------------------------------------------
-    diCompileSdkVersion = 23
+    diCompileSdkVersion = 24
     diBuildToolsVersion = '25.0.0'
 
-    diMinSdkVersion = 15
-    diTargetSdkVersion = 23
+    diMinSdkVersion = 19
+    diTargetSdkVersion = 24
     diVersionCode = 1
     diVersionName = "1.0.0"
     //----------------------------------------------------------------------

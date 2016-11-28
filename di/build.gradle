@@ -69,4 +69,5 @@ dependencies {
     compile diDependencies.javaxInject
 
     testCompile 'junit:junit:4.12'
+
 }
